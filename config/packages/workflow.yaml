@@ -1,0 +1,25 @@
+framework:
+    workflows:
+        order_create:
+            type: state_machine
+            supports:
+                - App\Service\Workflow\Order\OrderCreate
+            marking_store:
+                type: 'method'
+                property: 'currentState'
+            places:
+                - starting
+                - verified
+                - confirmed
+                - completed
+            transitions:
+                verify_order:
+                    from: starting
+                    to: verified
+                confirm_order:
+                    from: verified
+                    to: confirmed
+                complete_order:
+                    from: confirmed
+                    to: completed
+
