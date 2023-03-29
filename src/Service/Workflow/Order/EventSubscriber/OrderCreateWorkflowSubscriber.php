@@ -2,7 +2,7 @@
 
 namespace App\Service\Workflow\Order\EventSubscriber;
 
-use App\Service\Workflow\Order\OrderCreate;
+use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Order\Transition\CompleteOrder;
 use App\Service\Workflow\Order\Transition\ConfirmOrder;
 use App\Service\Workflow\Order\Transition\VerifyOrder;
@@ -29,25 +29,25 @@ class OrderCreateWorkflowSubscriber implements EventSubscriberInterface
 
     public function handleVerifyOrderTransition(Event $event): void
     {
-        /** @var OrderCreate $orderCreate */
-        $orderCreate = $event->getSubject();
+        /** @var WorkflowEntry $workflowEntry */
+        $workflowEntry = $event->getSubject();
 
-        $this->verifyOrder->handle($orderCreate);
+        $this->verifyOrder->handle($workflowEntry);
     }
 
     public function handleConfirmOrderTransition(Event $event): void
     {
-        /** @var OrderCreate $orderCreate */
-        $orderCreate = $event->getSubject();
+        /** @var WorkflowEntry $workflowEntry */
+        $workflowEntry = $event->getSubject();
 
-        $this->confirmOrder->handle($orderCreate);
+        $this->confirmOrder->handle($workflowEntry);
     }
 
     public function handleCompleteOrderTransition(Event $event): void
     {
-        /** @var OrderCreate $orderCreate */
-        $orderCreate = $event->getSubject();
+        /** @var WorkflowEntry $workflowEntry */
+        $workflowEntry = $event->getSubject();
 
-        $this->completeOrder->handle($orderCreate);
+        $this->completeOrder->handle($workflowEntry);
     }
 }

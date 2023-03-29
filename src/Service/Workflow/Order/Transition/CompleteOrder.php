@@ -2,7 +2,7 @@
 
 namespace App\Service\Workflow\Order\Transition;
 
-use App\Service\Workflow\Order\OrderCreate;
+use App\Entity\WorkflowEntry;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 class CompleteOrder
@@ -12,13 +12,13 @@ class CompleteOrder
     ) {
     }
 
-    public function handle(OrderCreate $orderCreate): void
+    public function handle(WorkflowEntry $workflowEntry): void
     {
         // make some business logic
         // ....
 
         // order is completed
-        $orderCreate->setCurrentState('completed');
-        dump($orderCreate);
+        $workflowEntry->setCurrentState('completed');
+        dump($workflowEntry);
     }
 }

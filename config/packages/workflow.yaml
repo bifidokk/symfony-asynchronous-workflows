@@ -3,7 +3,7 @@ framework:
         order_create:
             type: state_machine
             supports:
-                - App\Service\Workflow\Order\OrderCreate
+                - App\Entity\WorkflowEntry
             marking_store:
                 type: 'method'
                 property: 'currentState'

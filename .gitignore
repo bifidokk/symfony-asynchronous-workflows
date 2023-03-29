@@ -9,3 +9,4 @@
 /vendor/
 ###< symfony/framework-bundle ###
 .idea
+docker

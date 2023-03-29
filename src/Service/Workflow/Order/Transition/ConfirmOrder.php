@@ -2,7 +2,7 @@
 
 namespace App\Service\Workflow\Order\Transition;
 
-use App\Service\Workflow\Order\OrderCreate;
+use App\Entity\WorkflowEntry;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 class ConfirmOrder
@@ -12,12 +12,12 @@ class ConfirmOrder
     ) {
     }
 
-    public function handle(OrderCreate $orderCreate): void
+    public function handle(WorkflowEntry $workflowEntry): void
     {
         // make some confirmation here
         // ....
-        $orderCreate->setCurrentState('confirmed');
+        $workflowEntry->setCurrentState('confirmed');
 
-        $this->orderCreateStateMachine->apply($orderCreate, 'complete_order');
+        $this->orderCreateStateMachine->apply($workflowEntry, 'complete_order');
     }
 }
