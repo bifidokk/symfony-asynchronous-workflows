@@ -1,6 +1,6 @@
 framework:
     workflows:
-        order_create:
+        order_complete:
             type: state_machine
             supports:
                 - App\Entity\WorkflowEntry

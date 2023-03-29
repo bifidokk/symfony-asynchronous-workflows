@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\WorkflowEntryRepository;
 use App\Service\Workflow\WorkflowInterface;
+use App\Service\Workflow\WorkflowStampInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
@@ -64,9 +65,24 @@ class WorkflowEntry implements WorkflowInterface
         return $this->name;
     }
 
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
     public function getStamps(): array
     {
         return $this->stamps;
+    }
+
+    public function setStamps(array $stamps): void
+    {
+        $this->stamps = $stamps;
+    }
+
+    public function addStamp(WorkflowStampInterface $stamp): void
+    {
+        $this->stamps[] = $stamp;
     }
 
     public function getStatus(): string

@@ -8,7 +8,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
 class ConfirmOrder
 {
     public function __construct(
-        private WorkflowInterface $orderCreateStateMachine,
+        private WorkflowInterface $orderCompleteStateMachine,
     ) {
     }
 
@@ -18,6 +18,6 @@ class ConfirmOrder
         // ....
         $workflowEntry->setCurrentState('confirmed');
 
-        $this->orderCreateStateMachine->apply($workflowEntry, 'complete_order');
+        $this->orderCompleteStateMachine->apply($workflowEntry, 'complete_order');
     }
 }

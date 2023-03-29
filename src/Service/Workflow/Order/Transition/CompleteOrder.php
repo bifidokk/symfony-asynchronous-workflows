@@ -8,7 +8,7 @@ use Symfony\Component\Workflow\WorkflowInterface;
 class CompleteOrder
 {
     public function __construct(
-        private WorkflowInterface $orderCreateStateMachine,
+        private WorkflowInterface $orderCompleteStateMachine,
     ) {
     }
 

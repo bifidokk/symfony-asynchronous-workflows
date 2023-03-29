@@ -21,9 +21,9 @@ class OrderCreateWorkflowSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'workflow.order_create.transition.verify_order' => 'handleVerifyOrderTransition',
-            'workflow.order_create.transition.confirm_order' => 'handleConfirmOrderTransition',
-            'workflow.order_create.transition.complete_order' => 'handleCompleteOrderTransition',
+            'workflow.order_complete.transition.verify_order' => 'handleVerifyOrderTransition',
+            'workflow.order_complete.transition.confirm_order' => 'handleConfirmOrderTransition',
+            'workflow.order_complete.transition.complete_order' => 'handleCompleteOrderTransition',
         ];
     }
 

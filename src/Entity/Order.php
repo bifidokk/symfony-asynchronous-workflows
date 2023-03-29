@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
+#[ORM\Table(name: "orders")]
 class Order
 {
     #[ORM\Id]
@@ -18,4 +19,19 @@ class Order
 
     #[ORM\Column(type: "string")]
     private string $description;
+
+    public function getId(): Uuid
+    {
+        return $this->id;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
 }
