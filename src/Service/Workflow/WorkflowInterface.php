@@ -10,7 +10,7 @@ interface WorkflowInterface
 
     public function getCurrentState(): string;
 
-    public function getName(): string;
+    public function getWorkflowType(): WorkflowType;
 
     public function getStamps(): array;
 

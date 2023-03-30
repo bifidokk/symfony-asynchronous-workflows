@@ -6,14 +6,15 @@ namespace App\Service\Order;
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
+use App\Service\Workflow\WorkflowType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Workflow\WorkflowInterface;
 
 class OrderService
 {
     public function __construct(
-        private WorkflowInterface $orderCompleteStateMachine,
-        private EntityManagerInterface $entityManager
+        private readonly WorkflowInterface $orderCompleteStateMachine,
+        private readonly EntityManagerInterface $entityManager
     ) {
 
     }
@@ -26,9 +27,12 @@ class OrderService
         $this->entityManager->persist($order);
         $this->entityManager->flush();
 
-        $orderComplete = new WorkflowEntry();
-        $orderComplete->setName(Order::class);
-        $orderComplete->addStamp(new OrderIdStamp($order->getId()));
+        $orderComplete = WorkflowEntry::create(
+            WorkflowType::OrderComplete,
+            [
+                new OrderIdStamp($order->getId()),
+            ]
+        );
 
         $this->orderCompleteStateMachine->apply($orderComplete, 'verify_order');
     }

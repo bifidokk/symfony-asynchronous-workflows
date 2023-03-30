@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\WorkflowEntryRepository;
 use App\Service\Workflow\WorkflowInterface;
 use App\Service\Workflow\WorkflowStampInterface;
+use App\Service\Workflow\WorkflowType;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\Uuid;
@@ -21,8 +22,8 @@ class WorkflowEntry implements WorkflowInterface
     #[ORM\Column(name: "current_state", type: "string")]
     private string $currentState = 'starting';
 
-    #[ORM\Column(type: "string")]
-    private string $name = '';
+    #[ORM\Column(name: "workflow_type", length: 32, enumType: WorkflowType::class, options: ["default" => "default"])]
+    private WorkflowType $workflowType = WorkflowType::DefaultType;
 
     #[ORM\Column(type: "json")]
     private array $stamps = [];
@@ -45,6 +46,17 @@ class WorkflowEntry implements WorkflowInterface
         $this->updatedAt = new \DateTimeImmutable();
     }
 
+    public static function create(
+        WorkflowType $type,
+        array $stamps = [],
+    ) {
+        $entry = new WorkflowEntry();
+        $entry->setWorkflowType($type);
+        $entry->setStamps($stamps);
+
+        return $entry;
+    }
+
     public function getId(): Uuid
     {
         return $this->id;
@@ -60,14 +72,14 @@ class WorkflowEntry implements WorkflowInterface
         $this->currentState = $currentState;
     }
 
-    public function getName(): string
+    public function getWorkflowType(): WorkflowType
     {
-        return $this->name;
+        return $this->workflowType;
     }
 
-    public function setName(string $name): void
+    public function setWorkflowType(WorkflowType $workflowType): void
     {
-        $this->name = $name;
+        $this->workflowType = $workflowType;
     }
 
     public function getStamps(): array
