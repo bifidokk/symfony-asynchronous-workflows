@@ -12,9 +12,9 @@ use Symfony\Component\Workflow\Event\Event;
 class OrderCreateWorkflowSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private VerifyOrder $verifyOrder,
-        private ConfirmOrder $confirmOrder,
-        private CompleteOrder $completeOrder
+        private readonly VerifyOrder $verifyOrder,
+        private readonly ConfirmOrder $confirmOrder,
+        private readonly CompleteOrder $completeOrder
     ) {
     }
 

@@ -10,7 +10,6 @@ class OrderIdStamp implements WorkflowStampInterface
     public function __construct(
         private readonly Uuid $orderId,
     ) {
-
     }
 
     public function getOrderId(): Uuid

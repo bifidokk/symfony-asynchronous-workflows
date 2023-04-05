@@ -5,12 +5,14 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Order\Transition;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 
 class VerifyOrder
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -24,6 +26,9 @@ class VerifyOrder
         //TODO make get next transition method
         $workflowEntry->setNextTransition(Transition::ConfirmOrder->value);
         dump('in verified');
+
+        $this->entityManager->persist($workflowEntry);
+        $this->entityManager->flush();
 
         $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
