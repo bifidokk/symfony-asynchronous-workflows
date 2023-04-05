@@ -3,12 +3,14 @@
 namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\WorkflowEntry;
-use Symfony\Component\Workflow\WorkflowInterface;
+use App\Service\Workflow\Event\WorkflowNextStateEvent;
+use App\Service\Workflow\Order\Transition;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class ConfirmOrder
 {
     public function __construct(
-        private WorkflowInterface $orderCompleteStateMachine,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -17,7 +19,9 @@ class ConfirmOrder
         // make some confirmation here
         // ....
         $workflowEntry->setCurrentState('confirmed');
+        $workflowEntry->setNextTransition(Transition::CompleteOrder->value);
+        dump('in confirmed');
 
-        $this->orderCompleteStateMachine->apply($workflowEntry, 'complete_order');
+        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
 }

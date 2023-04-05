@@ -5,18 +5,19 @@ namespace App\Service\Order;
 
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
+use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
+use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\WorkflowType;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Workflow\WorkflowInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class OrderService
 {
     public function __construct(
-        private readonly WorkflowInterface $orderCompleteStateMachine,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
-
     }
 
     public function createOrder(): void
@@ -29,11 +30,12 @@ class OrderService
 
         $orderComplete = WorkflowEntry::create(
             WorkflowType::OrderComplete,
+            Transition::VerifyOrder->value,
             [
                 new OrderIdStamp($order->getId()),
             ]
         );
 
-        $this->orderCompleteStateMachine->apply($orderComplete, 'verify_order');
+        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($orderComplete));
     }
 }

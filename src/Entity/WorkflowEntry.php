@@ -25,6 +25,9 @@ class WorkflowEntry implements WorkflowInterface
     #[ORM\Column(name: "workflow_type", length: 32, enumType: WorkflowType::class, options: ["default" => "default"])]
     private WorkflowType $workflowType = WorkflowType::DefaultType;
 
+    #[ORM\Column(name: "next_transition", type: "string")]
+    private string $nextTransition = '';
+
     #[ORM\Column(type: "json")]
     private array $stamps = [];
 
@@ -48,10 +51,12 @@ class WorkflowEntry implements WorkflowInterface
 
     public static function create(
         WorkflowType $type,
+        string $nextTransition,
         array $stamps = [],
     ) {
         $entry = new WorkflowEntry();
         $entry->setWorkflowType($type);
+        $entry->setNextTransition($nextTransition);
         $entry->setStamps($stamps);
 
         return $entry;
@@ -80,6 +85,16 @@ class WorkflowEntry implements WorkflowInterface
     public function setWorkflowType(WorkflowType $workflowType): void
     {
         $this->workflowType = $workflowType;
+    }
+
+    public function getNextTransition(): string
+    {
+        return $this->nextTransition;
+    }
+
+    public function setNextTransition(string $nextTransition): void
+    {
+        $this->nextTransition = $nextTransition;
     }
 
     public function getStamps(): array

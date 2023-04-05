@@ -3,21 +3,28 @@
 namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\WorkflowEntry;
-use Symfony\Component\Workflow\WorkflowInterface;
+use App\Service\Workflow\Event\WorkflowNextStateEvent;
+use App\Service\Workflow\Order\Transition;
+use Psr\EventDispatcher\EventDispatcherInterface;
 
 class VerifyOrder
 {
     public function __construct(
-        private WorkflowInterface $orderCompleteStateMachine,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
     public function handle(WorkflowEntry $workflowEntry): void
     {
+        $workflowEntry->setNextTransition(Transition::ConfirmOrder->value);
+
         // make some verification here
         // ....
         $workflowEntry->setCurrentState('verified');
+        //TODO make get next transition method
+        $workflowEntry->setNextTransition(Transition::ConfirmOrder->value);
+        dump('in verified');
 
-        $this->orderCompleteStateMachine->apply($workflowEntry, 'confirm_order');
+        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
 }

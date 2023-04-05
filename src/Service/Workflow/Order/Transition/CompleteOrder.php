@@ -3,15 +3,9 @@
 namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\WorkflowEntry;
-use Symfony\Component\Workflow\WorkflowInterface;
 
 class CompleteOrder
 {
-    public function __construct(
-        private WorkflowInterface $orderCompleteStateMachine,
-    ) {
-    }
-
     public function handle(WorkflowEntry $workflowEntry): void
     {
         // make some business logic
@@ -19,6 +13,6 @@ class CompleteOrder
 
         // order is completed
         $workflowEntry->setCurrentState('completed');
-        dump($workflowEntry);
+        dump('in complete');
     }
 }
