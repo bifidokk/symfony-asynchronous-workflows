@@ -53,7 +53,7 @@ class WorkflowEntry implements WorkflowInterface
         WorkflowType $type,
         string $nextTransition,
         array $stamps = [],
-    ) {
+    ): WorkflowEntry {
         $entry = new WorkflowEntry();
         $entry->setWorkflowType($type);
         $entry->setNextTransition($nextTransition);

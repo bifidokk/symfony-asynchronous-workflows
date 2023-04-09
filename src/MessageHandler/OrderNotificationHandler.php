@@ -8,7 +8,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 class OrderNotificationHandler
 {
-    public function __invoke(OrderNotification $message)
+    public function __invoke(OrderNotification $message): void
     {
         dump('start');
         sleep(30);
