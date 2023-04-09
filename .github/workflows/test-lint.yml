@@ -51,7 +51,7 @@ jobs:
         env:
           DATABASE_URL: postgres://symfony:symfony@127.0.0.1:${{ job.services.postgres.ports[5432] }}/symfony?charset=UTF-8
       - name: Run Tests
-        run: php ./vendor/bin/phpunit --coverage-text
+        run: php bin/phpunit
         env:
           DATABASE_URL: postgres://symfony:symfony@127.0.0.1:${{ job.services.postgres.ports[5432] }}/symfony?charset=UTF-8
           TG_BOT_WEBHOOK_TOKEN: token

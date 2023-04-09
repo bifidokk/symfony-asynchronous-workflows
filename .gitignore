@@ -9,3 +9,8 @@
 ###< symfony/framework-bundle ###
 .idea
 docker
+
+###> symfony/phpunit-bridge ###
+.phpunit.result.cache
+/phpunit.xml
+###< symfony/phpunit-bridge ###
