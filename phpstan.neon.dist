@@ -3,6 +3,7 @@ includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/ergebnis/phpstan-rules/rules.neon
 
 parameters:
     checkMissingIterableValueType: false
@@ -13,6 +14,7 @@ parameters:
     inferPrivatePropertyTypeFromConstructor: true
     reportUnmatchedIgnoredErrors: false
     treatPhpDocTypesAsCertain: true
+
     scanDirectories:
         - vendor/phpstan/phpstan-strict-rules/src
     excludePaths:
@@ -33,17 +35,5 @@ parameters:
         - '#Unable to resolve the template type T in call to method Doctrine\\ORM\\EntityManagerInterface::getReference\(\)#'
         - '#Method .+? should return [a-zA-Z0-9\\\|]+ but returns object\|null#'
         - '#Parameter \$repositoryClass of attribute class Doctrine\\ORM\\Mapping\\Entity constructor expects class-string<Doctrine\\ORM\\EntityRepository<T of object>>\|null, (.*) given.#'
-
-#rules:
-#	- PHPStan\Rules\BooleansInConditions\BooleanInBooleanAndRule
-#	- PHPStan\Rules\BooleansInConditions\BooleanInBooleanNotRule
-#	- PHPStan\Rules\BooleansInConditions\BooleanInBooleanOrRule
-#	- PHPStan\Rules\BooleansInConditions\BooleanInElseIfConditionRule
-#	- PHPStan\Rules\BooleansInConditions\BooleanInIfConditionRule
-#	- PHPStan\Rules\BooleansInConditions\BooleanInTernaryOperatorRule
-#
-#services:
-#	-
-#		class: PHPStan\Rules\BooleansInConditions\BooleanRuleHelper
-#	-
-#		class: PHPStan\Rules\Operators\OperatorRuleHelper
+        - '#Class .+? is neither abstract nor final.#'
+        - '#Class .+? is not allowed to extend .+?.#'
