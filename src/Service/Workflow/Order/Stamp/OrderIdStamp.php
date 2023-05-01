@@ -8,13 +8,23 @@ use Symfony\Component\Uid\Uuid;
 
 class OrderIdStamp implements WorkflowStampInterface
 {
-    public function __construct(
-        private readonly Uuid $orderId,
-    ) {
-    }
+    private Uuid $orderId;
 
     public function getOrderId(): Uuid
     {
         return $this->orderId;
+    }
+
+    public function setOrderId(Uuid $orderId): void
+    {
+        $this->orderId = $orderId;
+    }
+
+    public static function createWithOrderId(Uuid $orderId): OrderIdStamp
+    {
+        $stamp = new OrderIdStamp();
+        $stamp->setOrderId($orderId);
+
+        return $stamp;
     }
 }

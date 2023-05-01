@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\WorkflowEntryRepository;
+use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowInterface;
 use App\Service\Workflow\WorkflowStampInterface;
 use App\Service\Workflow\WorkflowType;
@@ -53,7 +54,7 @@ class WorkflowEntry implements WorkflowInterface
     public static function create(
         WorkflowType $type,
         string $nextTransition,
-        array $stamps = [],
+        array $stamps,
     ): WorkflowEntry {
         $entry = new WorkflowEntry();
         $entry->setWorkflowType($type);
