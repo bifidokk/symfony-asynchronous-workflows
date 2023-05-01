@@ -37,3 +37,6 @@ parameters:
         - '#Parameter \$repositoryClass of attribute class Doctrine\\ORM\\Mapping\\Entity constructor expects class-string<Doctrine\\ORM\\EntityRepository<T of object>>\|null, (.*) given.#'
         - '#Class .+? is neither abstract nor final.#'
         - '#Class .+? is not allowed to extend .+?.#'
+        - '#Constructor in .+? has parameter .+? with default value.#'
+        - '#Language construct isset\(\) should not be used.#'
+        - '#Method .+? has parameter .+? with null as default value.#'

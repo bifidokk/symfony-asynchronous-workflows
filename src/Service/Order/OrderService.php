@@ -12,14 +12,14 @@ use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class OrderService
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly SerializerInterface $serializer
+        private readonly NormalizerInterface $normalizer
     ) {
     }
 
@@ -37,10 +37,13 @@ class OrderService
             ]
         );
 
+        /** @var array $stamps */
+        $stamps = $this->normalizer->normalize($envelope, 'array');
+
         $orderComplete = WorkflowEntry::create(
             WorkflowType::OrderComplete,
             Transition::VerifyOrder->value,
-            $this->serializer->normalize($envelope, 'array')
+            $stamps
         );
 
         $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($orderComplete));

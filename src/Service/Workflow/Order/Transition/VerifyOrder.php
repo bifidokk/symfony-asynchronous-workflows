@@ -9,6 +9,8 @@ use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\WorkflowEnvelope;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class VerifyOrder
@@ -16,13 +18,14 @@ class VerifyOrder
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityManagerInterface $entityManager,
-        private readonly SerializerInterface $serializer,
+        private readonly NormalizerInterface $normalizer,
+        private readonly DenormalizerInterface $denormalizer,
     ) {
     }
 
     public function handle(WorkflowEntry $workflowEntry): void
     {
-        $envelope = $this->serializer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
+        $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
 
         // make some verification here
         // ....
@@ -32,7 +35,10 @@ class VerifyOrder
         $workflowEntry->setNextTransition(Transition::ConfirmOrder->value);
         dump('in verified');
 
-        $workflowEntry->setStamps($this->serializer->normalize($envelope));
+        /** @var array $stamps */
+        $stamps = $this->normalizer->normalize($envelope, 'array');
+
+        $workflowEntry->setStamps($stamps);
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();
 
