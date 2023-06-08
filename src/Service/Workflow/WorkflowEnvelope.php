@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Service\Workflow;
 
+
+use App\Service\Workflow\Exception\CorruptedEnvelopeException;
+
 class WorkflowEnvelope
 {
     private array $stamps;
@@ -35,5 +38,26 @@ class WorkflowEnvelope
     public function getStamps(): array
     {
         return $this->stamps;
+    }
+
+    public function getStamp(string $stampClass): WorkflowStampInterface
+    {
+        $stamps = $this->getStampsWithType($stampClass);
+
+        if (count($stamps) !== 1) {
+            throw CorruptedEnvelopeException::shouldHaveExactOneStamp($stampClass, count($stamps));
+        }
+
+        return reset($stamps);
+    }
+
+    /**
+     * @param string $stampClass
+     *
+     * @return WorkflowStampInterface[]
+     */
+    public function getStampsWithType(string $stampClass): array
+    {
+        return $this->stamps[$stampClass] ?? [];
     }
 }
