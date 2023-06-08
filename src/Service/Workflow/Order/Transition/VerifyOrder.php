@@ -7,13 +7,14 @@ use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\WorkflowEnvelope;
+use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
-class VerifyOrder
+class VerifyOrder implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -31,8 +32,7 @@ class VerifyOrder
         // ....
 
         $workflowEntry->setCurrentState('verified');
-        // TODO make get next transition method
-        $workflowEntry->setNextTransition(Transition::ConfirmOrder->value);
+        $workflowEntry->setNextTransition($this->getNextTransition());
         dump('in verified');
 
         /** @var array $stamps */
@@ -43,5 +43,10 @@ class VerifyOrder
         $this->entityManager->flush();
 
         $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
+    }
+
+    public function getNextTransition(): ?string
+    {
+        return Transition::ConfirmOrder->value;
     }
 }

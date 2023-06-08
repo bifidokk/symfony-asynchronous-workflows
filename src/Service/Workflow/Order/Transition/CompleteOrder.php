@@ -4,9 +4,10 @@ declare(strict_types=1);
 namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\WorkflowEntry;
+use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CompleteOrder
+class CompleteOrder implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -24,5 +25,10 @@ class CompleteOrder
 
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();
+    }
+
+    public function getNextTransition(): ?string
+    {
+        return null;
     }
 }
