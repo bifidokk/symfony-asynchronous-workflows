@@ -10,7 +10,7 @@ use App\Service\Workflow\Order\Transition\VerifyOrder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Workflow\Event\Event;
 
-class OrderCreateWorkflowSubscriber implements EventSubscriberInterface
+class OrderWorkflowSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly VerifyOrder $verifyOrder,

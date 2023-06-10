@@ -9,6 +9,7 @@ use App\Repository\OrderRepository;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Order\Exception\OrderException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
+use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowTransitionInterface;
@@ -16,7 +17,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class VerifyOrder implements WorkflowTransitionInterface
 {
@@ -48,7 +48,7 @@ class VerifyOrder implements WorkflowTransitionInterface
             throw OrderException::shouldHaveDescription($order);
         }
 
-        $workflowEntry->setCurrentState('verified');
+        $workflowEntry->setCurrentState(State::Verified->value);
         $workflowEntry->setNextTransition($this->getNextTransition());
         dump('in verified');
 

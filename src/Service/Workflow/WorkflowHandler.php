@@ -19,7 +19,6 @@ class WorkflowHandler
         try {
             $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
         } catch (\Throwable $exception) {
-
         }
     }
 
