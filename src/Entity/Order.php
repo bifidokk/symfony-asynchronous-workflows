@@ -21,6 +21,9 @@ class Order
     #[ORM\Column(type: "string")]
     private string $description;
 
+    #[ORM\Column(name: "is_completed", type: "boolean", options: ["default" => 0])]
+    private bool $isCompleted = false;
+
     public function getId(): Uuid
     {
         return $this->id;
@@ -34,5 +37,15 @@ class Order
     public function setDescription(string $description): void
     {
         $this->description = $description;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->isCompleted;
+    }
+
+    public function complete(): void
+    {
+        $this->isCompleted = true;
     }
 }
