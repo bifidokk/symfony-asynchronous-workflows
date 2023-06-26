@@ -5,7 +5,7 @@ jobs:
     name: Symfony (PHP ${{ matrix.php-versions }})
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgres://symfony:symfony@127.0.0.1:${{ job.services.postgres.ports[5432] }}/symfony?charset=UTF-8
+      DATABASE_URL: postgres://symfony:symfony@127.0.0.1:5432/symfony?charset=UTF-8
       MESSENGER_TRANSPORT_DSN: in-memory://
       MAILER_DSN: null://null
       ORDER_CONFIRMATION_EMAIL: test@test.com
