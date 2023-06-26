@@ -50,6 +50,8 @@ jobs:
         run: |
           composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
       - name: Run Migration
+        env:
+          DATABASE_URL: postgres://symfony:symfony@127.0.0.1:${{ job.services.postgres.ports[5432] }}/symfony?charset=UTF-8
         run: |
           composer require symfony/orm-pack
           php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
