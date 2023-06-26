@@ -17,7 +17,7 @@ class OrderService
     ) {
     }
 
-    public function createOrder(): void
+    public function createOrder(): Order
     {
         $order = new Order();
         $order->setDescription('my order');
@@ -28,5 +28,7 @@ class OrderService
         $this->workflowHandler->handle(
             $this->orderCompleteWorkflowBuilder->create($order)
         );
+
+        return $order;
     }
 }

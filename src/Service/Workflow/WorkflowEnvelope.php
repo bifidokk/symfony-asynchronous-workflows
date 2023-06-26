@@ -60,4 +60,9 @@ class WorkflowEnvelope
     {
         return $this->stamps[$stampClass] ?? [];
     }
+
+    public function hasStampWithType(string $stampClass): bool
+    {
+        return isset($this->stamps[$stampClass]);
+    }
 }
