@@ -7,6 +7,7 @@ use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Order\Transition\CompleteOrder;
 use App\Service\Workflow\Order\Transition\ConfirmOrder;
 use App\Service\Workflow\Order\Transition\VerifyOrder;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Workflow\Event\Event;
 
@@ -15,7 +16,8 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly VerifyOrder $verifyOrder,
         private readonly ConfirmOrder $confirmOrder,
-        private readonly CompleteOrder $completeOrder
+        private readonly CompleteOrder $completeOrder,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -32,23 +34,48 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
     {
         /** @var WorkflowEntry $workflowEntry */
         $workflowEntry = $event->getSubject();
+        $this->entityManager->getConnection()->beginTransaction();
 
-        $this->verifyOrder->handle($workflowEntry);
+        try {
+            $this->verifyOrder->handle($workflowEntry);
+            $this->entityManager->getConnection()->commit();
+        } catch (\Throwable $exception) {
+            $this->entityManager->getConnection()->rollBack();
+
+            throw $exception;
+        }
+
     }
 
     public function handleConfirmOrderTransition(Event $event): void
     {
         /** @var WorkflowEntry $workflowEntry */
         $workflowEntry = $event->getSubject();
+        $this->entityManager->getConnection()->beginTransaction();
 
-        $this->confirmOrder->handle($workflowEntry);
+        try {
+            $this->confirmOrder->handle($workflowEntry);
+            $this->entityManager->getConnection()->commit();
+        } catch (\Throwable $exception) {
+            $this->entityManager->getConnection()->rollBack();
+
+            throw $exception;
+        }
     }
 
     public function handleCompleteOrderTransition(Event $event): void
     {
         /** @var WorkflowEntry $workflowEntry */
         $workflowEntry = $event->getSubject();
+        $this->entityManager->getConnection()->beginTransaction();
 
-        $this->completeOrder->handle($workflowEntry);
+        try {
+            $this->completeOrder->handle($workflowEntry);
+            $this->entityManager->getConnection()->commit();
+        } catch (\Throwable $exception) {
+            $this->entityManager->getConnection()->rollBack();
+
+            throw $exception;
+        }
     }
 }
