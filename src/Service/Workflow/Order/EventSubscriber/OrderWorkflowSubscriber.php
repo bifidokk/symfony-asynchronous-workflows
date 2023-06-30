@@ -44,7 +44,6 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
 
             throw $exception;
         }
-
     }
 
     public function handleConfirmOrderTransition(Event $event): void

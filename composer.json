@@ -73,6 +73,7 @@
         }
     },
     "require-dev": {
+        "doctrine/doctrine-fixtures-bundle": "^3.4",
         "ergebnis/phpstan-rules": "^1.0",
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-doctrine": "^1.3",

@@ -10,14 +10,12 @@ use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowType;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Tests\Functional\TestCase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
-class OrderServiceTest extends WebTestCase
+class OrderServiceTest extends TestCase
 {
     private OrderService $orderService;
-    private EntityManagerInterface $entityManager;
     private WorkflowEntryRepository $workflowEntryRepository;
     private DenormalizerInterface $denormalizer;
 
@@ -26,7 +24,6 @@ class OrderServiceTest extends WebTestCase
         parent::setUp();
 
         $this->orderService = self::getContainer()->get(OrderService::class);
-        $this->entityManager = self::getContainer()->get(EntityManagerInterface::class);
         $this->workflowEntryRepository = self::getContainer()->get(WorkflowEntryRepository::class);
         $this->denormalizer = self::getContainer()->get(DenormalizerInterface::class);
     }
