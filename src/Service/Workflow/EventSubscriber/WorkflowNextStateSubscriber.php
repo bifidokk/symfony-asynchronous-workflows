@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace App\Service\Workflow\EventSubscriber;
 
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Workflow\Registry;
 
 class WorkflowNextStateSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Registry $workflowRegistry
+        private readonly ServiceLocator $workflows,
     ) {
     }
 
@@ -25,8 +25,7 @@ class WorkflowNextStateSubscriber implements EventSubscriberInterface
     {
         $workflowEntry = $event->getWorkflowEntry();
 
-        if (!$this->workflowRegistry->has(
-            $workflowEntry,
+        if (!$this->workflows->has(
             $workflowEntry->getWorkflowType()->value)
         ) {
             throw new \RuntimeException(
@@ -37,8 +36,7 @@ class WorkflowNextStateSubscriber implements EventSubscriberInterface
             );
         }
 
-        $workflow = $this->workflowRegistry->get(
-            $workflowEntry,
+        $workflow = $this->workflows->get(
             $workflowEntry->getWorkflowType()->value
         );
 

@@ -24,3 +24,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+    app.workflows:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        tags: [ 'container.service_locator' ]
+        arguments:
+            - order_complete: '@state_machine.order_complete'
+
+    App\Service\Workflow\EventSubscriber\WorkflowNextStateSubscriber:
+        arguments:
+            $workflows: '@app.workflows'
