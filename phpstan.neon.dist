@@ -1,43 +1,47 @@
 includes:
-    - vendor/phpstan/phpstan-symfony/extension.neon
-    - vendor/phpstan/phpstan-doctrine/extension.neon
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-phpunit/rules.neon
-    - vendor/ergebnis/phpstan-rules/rules.neon
+	- vendor/phpstan/phpstan-symfony/extension.neon
+	- vendor/phpstan/phpstan-doctrine/extension.neon
+	- vendor/phpstan/phpstan-phpunit/extension.neon
+	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/ergebnis/phpstan-rules/rules.neon
 
 parameters:
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-    checkAlwaysTrueCheckTypeFunctionCall: true
-    checkAlwaysTrueInstanceof: true
-    checkAlwaysTrueStrictComparison: true
-    inferPrivatePropertyTypeFromConstructor: true
-    reportUnmatchedIgnoredErrors: false
-    treatPhpDocTypesAsCertain: true
+	checkMissingIterableValueType: false
+	checkGenericClassInNonGenericObjectType: false
+	checkAlwaysTrueCheckTypeFunctionCall: true
+	checkAlwaysTrueInstanceof: true
+	checkAlwaysTrueStrictComparison: true
+	inferPrivatePropertyTypeFromConstructor: true
+	reportUnmatchedIgnoredErrors: false
+	treatPhpDocTypesAsCertain: true
 
-    scanDirectories:
-        - vendor/phpstan/phpstan-strict-rules/src
-    excludePaths:
-        - '*/DependencyInjection/Configuration.php'
-        - src/Migrations/*
-        - src/Service/Redis/*
-        - tests/bootstrap.php
-    symfony:
-        container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
-    ignoreErrors:
-        - '#Call to an undefined method Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\_:]+>::[a-zA-Z0-9_]+\(\)#'
-        - '#Method .+? should return [a-zA-Z0-9\\]+ but returns Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\_:]+>#'
-        - '#Property [a-zA-Z0-9\\]+::\$[a-zA-Z]+Repository \([a-zA-Z0-9\\]+\) does not accept Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\]+>#'
-        - '#Unsafe usage of new static\(\)#'
-        - '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required#'
-        - '#Call to method Symfony\\Component\\HttpFoundation\\Request::hasSession\(\) will always evaluate to true#'
-        - '#Unable to resolve the template type T in call to method Doctrine\\Persistence\\ObjectManager::find\(\)#'
-        - '#Unable to resolve the template type T in call to method Doctrine\\ORM\\EntityManagerInterface::getReference\(\)#'
-        - '#Method .+? should return [a-zA-Z0-9\\\|]+ but returns object\|null#'
-        - '#Parameter \$repositoryClass of attribute class Doctrine\\ORM\\Mapping\\Entity constructor expects class-string<Doctrine\\ORM\\EntityRepository<T of object>>\|null, (.*) given.#'
-        - '#Class .+? is neither abstract nor final.#'
-        - '#Class .+? is not allowed to extend .+?.#'
-        - '#Constructor in .+? has parameter .+? with default value.#'
-        - '#Language construct isset\(\) should not be used.#'
-        - '#Method .+? has parameter .+? with null as default value.#'
-        - '#Method .+? has a nullable return type declaration.#'
+	ergebnis:
+		noParameterWithContainerTypeDeclaration:
+			enabled: false
+
+	scanDirectories:
+		- vendor/phpstan/phpstan-strict-rules/src
+	excludePaths:
+		- '*/DependencyInjection/Configuration.php'
+		- src/Migrations/*
+		- src/Service/Redis/*
+		- tests/bootstrap.php
+	symfony:
+		container_xml_path: 'var/cache/dev/App_KernelDevDebugContainer.xml'
+	ignoreErrors:
+		- '#Call to an undefined method Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\_:]+>::[a-zA-Z0-9_]+\(\)#'
+		- '#Method .+? should return [a-zA-Z0-9\\]+ but returns Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\_:]+>#'
+		- '#Property [a-zA-Z0-9\\]+::\$[a-zA-Z]+Repository \([a-zA-Z0-9\\]+\) does not accept Doctrine\\ORM\\EntityRepository<[a-zA-Z0-9\\]+>#'
+		- '#Unsafe usage of new static\(\)#'
+		- '#Method Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface::dispatch\(\) invoked with 2 parameters, 1 required#'
+		- '#Call to method Symfony\\Component\\HttpFoundation\\Request::hasSession\(\) will always evaluate to true#'
+		- '#Unable to resolve the template type T in call to method Doctrine\\Persistence\\ObjectManager::find\(\)#'
+		- '#Unable to resolve the template type T in call to method Doctrine\\ORM\\EntityManagerInterface::getReference\(\)#'
+		- '#Method .+? should return [a-zA-Z0-9\\\|]+ but returns object\|null#'
+		- '#Parameter \$repositoryClass of attribute class Doctrine\\ORM\\Mapping\\Entity constructor expects class-string<Doctrine\\ORM\\EntityRepository<T of object>>\|null, (.*) given.#'
+		- '#Class .+? is neither abstract nor final.#'
+		- '#Class .+? is not allowed to extend .+?.#'
+		- '#Constructor in .+? has parameter .+? with default value.#'
+		- '#Language construct isset\(\) should not be used.#'
+		- '#Method .+? has parameter .+? with null as default value.#'
+		- '#Method .+? has a nullable return type declaration.#'
