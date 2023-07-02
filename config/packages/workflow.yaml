@@ -8,13 +8,13 @@ framework:
                 type: 'method'
                 property: 'currentState'
             places:
-                - starting
+                - initialised
                 - verified
                 - confirmed
                 - completed
             transitions:
                 verify_order:
-                    from: starting
+                    from: initialised
                     to: verified
                 confirm_order:
                     from: verified

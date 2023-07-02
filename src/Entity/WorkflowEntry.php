@@ -7,6 +7,7 @@ use App\Repository\WorkflowEntryRepository;
 use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowInterface;
 use App\Service\Workflow\WorkflowStampInterface;
+use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowType;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
@@ -22,7 +23,7 @@ class WorkflowEntry implements WorkflowInterface
     private Uuid $id;
 
     #[ORM\Column(name: "current_state", type: "string")]
-    private string $currentState = 'starting';
+    private string $currentState = 'initialised';
 
     #[ORM\Column(name: "workflow_type", length: 32, enumType: WorkflowType::class, options: ["default" => "default"])]
     private WorkflowType $workflowType = WorkflowType::DefaultType;
@@ -33,8 +34,8 @@ class WorkflowEntry implements WorkflowInterface
     #[ORM\Column(type: "json")]
     private array $stamps = [];
 
-    #[ORM\Column(type: "string")]
-    private string $status = 'starting';
+    #[ORM\Column(enumType: WorkflowStatus::class, options: ["default" => "started"])]
+    private WorkflowStatus $status = WorkflowStatus::Started;
 
     #[ORM\Column(type: "smallint")]
     private int $retries = 0;
@@ -114,7 +115,7 @@ class WorkflowEntry implements WorkflowInterface
         $this->stamps[] = $stamp;
     }
 
-    public function getStatus(): string
+    public function getStatus(): WorkflowStatus
     {
         return $this->status;
     }

@@ -15,7 +15,7 @@ interface WorkflowInterface
 
     public function getStamps(): array;
 
-    public function getStatus(): string;
+    public function getStatus(): WorkflowStatus;
 
     public function getRetries(): int;
 }
