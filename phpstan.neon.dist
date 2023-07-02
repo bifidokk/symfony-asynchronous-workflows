@@ -18,6 +18,8 @@ parameters:
 	ergebnis:
 		noParameterWithContainerTypeDeclaration:
 			enabled: false
+		noParameterWithNullableTypeDeclaration:
+			enabled: false
 
 	scanDirectories:
 		- vendor/phpstan/phpstan-strict-rules/src
