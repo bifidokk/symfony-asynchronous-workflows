@@ -17,13 +17,15 @@ class OrderCompleteWorkflowBuilder
     ) {
     }
 
-    public function create(Order $order): WorkflowEntry
-    {
+    public function create(
+        Order $order,
+        array $additionStamps = []
+    ): WorkflowEntry {
         $envelope = new WorkflowEnvelope(
-            [
+            array_merge([
                 OrderIdStamp::createWithOrderId($order->getId()),
-            ]
-        );
+            ], $additionStamps
+        ));
 
         /** @var array $stamps */
         $stamps = $this->normalizer->normalize($envelope, 'array');

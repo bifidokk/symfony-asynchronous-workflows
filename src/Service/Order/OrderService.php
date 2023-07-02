@@ -5,6 +5,7 @@ namespace App\Service\Order;
 
 use App\Entity\Order;
 use App\Service\Workflow\Order\OrderCompleteWorkflowBuilder;
+use App\Service\Workflow\Order\Stamp\ThrowExceptionStamp;
 use App\Service\Workflow\WorkflowHandler;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -31,4 +32,25 @@ class OrderService
 
         return $order;
     }
+
+    public function createOrderWithErrorFlow(): Order
+    {
+        $order = new Order();
+        $order->setDescription('my order');
+
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+
+        $this->workflowHandler->handle(
+            $this->orderCompleteWorkflowBuilder->create(
+                $order,
+                [
+                    new ThrowExceptionStamp(),
+                ]
+            ),
+        );
+
+        return $order;
+    }
+
 }

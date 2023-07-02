@@ -6,7 +6,6 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
 use App\Repository\OrderRepository;
-use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Order\Exception\OrderException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
@@ -14,14 +13,12 @@ use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class VerifyOrder implements WorkflowTransitionInterface
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly EntityManagerInterface $entityManager,
         private readonly NormalizerInterface $normalizer,
         private readonly DenormalizerInterface $denormalizer,
@@ -58,8 +55,6 @@ class VerifyOrder implements WorkflowTransitionInterface
         $workflowEntry->setStamps($stamps);
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();
-
-        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
 
     public function getNextTransition(): ?string

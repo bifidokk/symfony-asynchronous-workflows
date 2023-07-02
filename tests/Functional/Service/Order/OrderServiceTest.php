@@ -58,4 +58,26 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals($order->getId(), $stamp->getOrderId());
     }
+
+    /**
+     * @test
+     */
+    public function itHandlesExceptionDuringOrderCreation(): void
+    {
+        $order = $this->orderService->createOrderWithErrorFlow();
+        $this->entityManager->refresh($order);
+
+        $this->assertFalse($order->isCompleted());
+
+        $workflowEntry = $this->workflowEntryRepository->findOneBy(
+            [],
+            ['createdAt' => 'desc'],
+        );
+
+        $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
+        $this->entityManager->refresh($workflowEntry);
+
+        $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
+        $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
+    }
 }

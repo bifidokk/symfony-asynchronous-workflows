@@ -18,6 +18,7 @@
         "symfony/framework-bundle": "6.2.*",
         "symfony/mailer": "6.2.*",
         "symfony/messenger": "6.2.*",
+        "symfony/monolog-bundle": "^3.8",
         "symfony/property-access": "6.2.*",
         "symfony/runtime": "6.2.*",
         "symfony/serializer": "6.2.*",
