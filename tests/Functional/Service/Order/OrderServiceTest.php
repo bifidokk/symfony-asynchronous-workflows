@@ -9,6 +9,7 @@ use App\Service\Order\OrderService;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\WorkflowEnvelope;
+use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowType;
 use App\Tests\Functional\TestCase;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
@@ -48,6 +49,7 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Completed->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
 
         /** @var WorkflowEnvelope $envelope */
         $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
@@ -79,5 +81,6 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
     }
 }

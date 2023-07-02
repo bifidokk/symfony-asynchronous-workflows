@@ -28,8 +28,8 @@ class WorkflowEntry implements WorkflowInterface
     #[ORM\Column(name: "workflow_type", length: 32, enumType: WorkflowType::class, options: ["default" => "default"])]
     private WorkflowType $workflowType = WorkflowType::DefaultType;
 
-    #[ORM\Column(name: "next_transition", type: "string")]
-    private string $nextTransition = '';
+    #[ORM\Column(name: "next_transition", type: "string", nullable: true)]
+    private ?string $nextTransition = null;
 
     #[ORM\Column(type: "json")]
     private array $stamps = [];
@@ -90,12 +90,12 @@ class WorkflowEntry implements WorkflowInterface
         $this->workflowType = $workflowType;
     }
 
-    public function getNextTransition(): string
+    public function getNextTransition(): ?string
     {
         return $this->nextTransition;
     }
 
-    public function setNextTransition(string $nextTransition): void
+    public function setNextTransition(?string $nextTransition): void
     {
         $this->nextTransition = $nextTransition;
     }
@@ -118,6 +118,11 @@ class WorkflowEntry implements WorkflowInterface
     public function getStatus(): WorkflowStatus
     {
         return $this->status;
+    }
+
+    public function setStatus(WorkflowStatus $status): void
+    {
+        $this->status = $status;
     }
 
     public function getRetries(): int

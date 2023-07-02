@@ -43,12 +43,13 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
             $this->verifyOrder->handle($workflowEntry);
 
             $this->entityManager->getConnection()->commit();
-            $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
         } catch (\Throwable $exception) {
             $this->entityManager->getConnection()->rollBack();
 
             throw $exception;
         }
+
+        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
 
     public function handleConfirmOrderTransition(Event $event): void
@@ -61,12 +62,13 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
             $this->confirmOrder->handle($workflowEntry);
 
             $this->entityManager->getConnection()->commit();
-            $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
         } catch (\Throwable $exception) {
             $this->entityManager->getConnection()->rollBack();
 
             throw $exception;
         }
+
+        $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
     }
 
     public function handleCompleteOrderTransition(Event $event): void
@@ -77,12 +79,15 @@ class OrderWorkflowSubscriber implements EventSubscriberInterface
 
         try {
             $this->completeOrder->handle($workflowEntry);
-
             $this->entityManager->getConnection()->commit();
         } catch (\Throwable $exception) {
             $this->entityManager->getConnection()->rollBack();
 
             throw $exception;
+        }
+
+        if ($workflowEntry->getNextTransition() !== null) {
+            $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
         }
     }
 }
