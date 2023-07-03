@@ -28,8 +28,22 @@ services:
         class: Symfony\Component\DependencyInjection\ServiceLocator
         tags: [ 'container.service_locator' ]
         arguments:
-            - order_complete: '@state_machine.order_complete'
+            -
+                order_complete: '@state_machine.order_complete'
 
     App\Service\Workflow\EventSubscriber\WorkflowNextStateSubscriber:
         arguments:
             $workflows: '@app.workflows'
+
+    app.transitions:
+        class: Symfony\Component\DependencyInjection\ServiceLocator
+        tags: [ 'container.service_locator' ]
+        arguments:
+            -
+                verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
+                confirm_order: '@App\Service\Workflow\Order\Transition\ConfirmOrder'
+                complete_order: '@App\Service\Workflow\Order\Transition\CompleteOrder'
+
+    App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber:
+        arguments:
+            $transitions: '@app.transitions'
