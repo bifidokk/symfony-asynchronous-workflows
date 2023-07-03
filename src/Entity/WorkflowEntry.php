@@ -129,4 +129,9 @@ class WorkflowEntry implements WorkflowInterface
     {
         return $this->retries;
     }
+
+    public function addRetry(): void
+    {
+        $this->retries++;
+    }
 }

@@ -40,4 +40,14 @@ class WorkflowHandler
         }
     }
 
+    public function retry(WorkflowEntry $workflowEntry): void
+    {
+        $workflowEntry->addRetry();
+        $workflowEntry->setStatus(WorkflowStatus::Started);
+
+        $this->entityManager->persist($workflowEntry);
+        $this->entityManager->flush();
+
+        $this->handle($workflowEntry);
+    }
 }
