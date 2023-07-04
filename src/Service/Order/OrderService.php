@@ -5,7 +5,7 @@ namespace App\Service\Order;
 
 use App\Entity\Order;
 use App\Service\Workflow\Order\OrderCompleteWorkflowBuilder;
-use App\Service\Workflow\Order\Stamp\ThrowExceptionStamp;
+use App\Service\Workflow\Stamp\ThrowExceptionStamp;
 use App\Service\Workflow\WorkflowHandler;
 use Doctrine\ORM\EntityManagerInterface;
 

@@ -4,8 +4,9 @@ declare(strict_types=1);
 namespace App\Service\Workflow\Order\Exception;
 
 use App\Entity\Order;
+use App\Service\Workflow\Exception\WorkflowInternalErrorException;
 
-class OrderException extends \RuntimeException
+class OrderException extends WorkflowInternalErrorException
 {
     public static function shouldHaveDescription(Order $order): \RuntimeException
     {
