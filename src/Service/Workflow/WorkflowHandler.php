@@ -50,6 +50,7 @@ class WorkflowHandler
                 $exception->getMessage(),
             ));
 
+            /** @var array<WorkflowStampInterface> $stamps */
             $stamps = $this->normalizer->normalize($envelope, 'array');
             $workflowEntry->setStamps($stamps);
 

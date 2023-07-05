@@ -105,6 +105,10 @@ class WorkflowEntry implements WorkflowInterface
         return $this->stamps;
     }
 
+    /**
+     * @param WorkflowStampInterface[] $stamps
+     * @return void
+     */
     public function setStamps(array $stamps): void
     {
         $this->stamps = $stamps;
