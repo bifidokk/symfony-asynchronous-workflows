@@ -47,7 +47,6 @@ class VerifyOrder implements WorkflowTransitionInterface
 
         $workflowEntry->setCurrentState(State::Verified->value);
         $workflowEntry->setNextTransition($this->getNextTransition());
-        dump('in verified');
 
         /** @var array $stamps */
         $stamps = $this->normalizer->normalize($envelope, 'array');

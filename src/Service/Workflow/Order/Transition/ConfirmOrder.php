@@ -55,7 +55,6 @@ class ConfirmOrder implements WorkflowTransitionInterface
 
         $workflowEntry->setCurrentState(State::Confirmed->value);
         $workflowEntry->setNextTransition($this->getNextTransition());
-        dump('in confirmed');
 
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();

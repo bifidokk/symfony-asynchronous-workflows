@@ -45,8 +45,6 @@ class CompleteOrder implements WorkflowTransitionInterface
             $workflowEntry->setStatus(WorkflowStatus::Finished);
         }
 
-        dump('in complete');
-
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();
     }
