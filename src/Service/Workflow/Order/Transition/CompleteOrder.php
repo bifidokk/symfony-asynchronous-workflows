@@ -6,30 +6,31 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
 use App\Repository\OrderRepository;
+use App\Service\Workflow\Envelope\WorkflowEnvelopeStampHandler;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
-use App\Service\Workflow\WorkflowEnvelope;
+use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 
 class CompleteOrder implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly DenormalizerInterface $denormalizer,
         private readonly OrderRepository $orderRepository,
+        private readonly WorkflowEnvelopeStampHandler $workflowEnvelopeStampHandler,
     ) {
     }
 
     public function handle(WorkflowEntry $workflowEntry): void
     {
-        /** @var WorkflowEnvelope $envelope */
-        $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
-
         /** @var OrderIdStamp $orderIdStamp */
-        $orderIdStamp = $envelope->getStamp(OrderIdStamp::class);
+        $orderIdStamp = $this->workflowEnvelopeStampHandler->getStamp(
+            $workflowEntry,
+            OrderIdStamp::class
+        );
+
         $orderId = $orderIdStamp->getOrderId();
 
         /** @var Order $order */

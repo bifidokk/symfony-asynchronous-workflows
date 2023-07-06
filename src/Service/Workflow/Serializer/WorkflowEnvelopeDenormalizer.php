@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service\Workflow\Serializer;
 
-use App\Service\Workflow\WorkflowEnvelope;
+use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowStampInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerAwareTrait;

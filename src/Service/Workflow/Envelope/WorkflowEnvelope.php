@@ -1,10 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Service\Workflow;
+namespace App\Service\Workflow\Envelope;
 
 
 use App\Service\Workflow\Exception\CorruptedEnvelopeException;
+use App\Service\Workflow\WorkflowStampInterface;
 
 class WorkflowEnvelope
 {

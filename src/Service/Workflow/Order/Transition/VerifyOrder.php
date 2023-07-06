@@ -6,33 +6,30 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
 use App\Repository\OrderRepository;
+use App\Service\Workflow\Envelope\WorkflowEnvelopeStampHandler;
 use App\Service\Workflow\Order\Exception\OrderException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
-use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-
 class VerifyOrder implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly NormalizerInterface $normalizer,
-        private readonly DenormalizerInterface $denormalizer,
         private readonly OrderRepository $orderRepository,
+        private readonly WorkflowEnvelopeStampHandler $workflowEnvelopeStampHandler,
     ) {
     }
 
     public function handle(WorkflowEntry $workflowEntry): void
     {
-        /** @var WorkflowEnvelope $envelope */
-        $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
-
         /** @var OrderIdStamp $orderIdStamp */
-        $orderIdStamp = $envelope->getStamp(OrderIdStamp::class);
+        $orderIdStamp = $this->workflowEnvelopeStampHandler->getStamp(
+            $workflowEntry,
+            OrderIdStamp::class
+        );
+
         $orderId = $orderIdStamp->getOrderId();
 
         $order = $this->orderRepository->find($orderId);
@@ -48,10 +45,6 @@ class VerifyOrder implements WorkflowTransitionInterface
         $workflowEntry->setCurrentState(State::Verified->value);
         $workflowEntry->setNextTransition($this->getNextTransition());
 
-        /** @var array $stamps */
-        $stamps = $this->normalizer->normalize($envelope, 'array');
-
-        $workflowEntry->setStamps($stamps);
         $this->entityManager->persist($workflowEntry);
         $this->entityManager->flush();
     }

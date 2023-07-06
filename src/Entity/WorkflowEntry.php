@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\WorkflowEntryRepository;
-use App\Service\Workflow\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowInterface;
 use App\Service\Workflow\WorkflowStampInterface;
 use App\Service\Workflow\WorkflowStatus;

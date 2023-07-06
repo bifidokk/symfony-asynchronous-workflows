@@ -8,7 +8,7 @@ use App\Repository\WorkflowEntryRepository;
 use App\Service\Order\OrderService;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
-use App\Service\Workflow\WorkflowEnvelope;
+use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowHandler;
 use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowType;
