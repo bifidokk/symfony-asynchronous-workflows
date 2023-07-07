@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace App\Service\Workflow;
 
 use App\Entity\WorkflowEntry;
-use App\Service\Workflow\Envelope\WorkflowEnvelopeStampHandler;
+use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class WorkflowHandler
@@ -18,7 +20,8 @@ class WorkflowHandler
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly EntityManagerInterface $entityManager,
-        private readonly WorkflowEnvelopeStampHandler $workflowEnvelopeStampHandler,
+        private readonly NormalizerInterface $normalizer,
+        private readonly DenormalizerInterface $denormalizer,
     ) {
     }
 
@@ -39,10 +42,17 @@ class WorkflowHandler
             );
 
             $workflowEntry->setStatus(WorkflowStatus::Stopped);
-            $workflowEntry = $this->workflowEnvelopeStampHandler->addStamp(
-                $workflowEntry,
-                new WorkflowInternalErrorStamp($exception->getMessage()),
-            );
+            /** @var WorkflowEnvelope $envelope */
+            $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
+
+
+            $envelope->addStamp(new WorkflowInternalErrorStamp(
+                $exception->getMessage(),
+            ));
+
+            /** @var array<WorkflowStampInterface> $stamps */
+            $stamps = $this->normalizer->normalize($envelope, 'array');
+            $workflowEntry->setStamps($stamps);
 
             $this->entityManager->persist($workflowEntry);
             $this->entityManager->flush();

@@ -4,9 +4,7 @@ declare(strict_types=1);
 namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\Order;
-use App\Entity\WorkflowEntry;
 use App\Repository\OrderRepository;
-use App\Service\Workflow\Envelope\WorkflowEnvelopeStampHandler;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
@@ -15,29 +13,22 @@ use App\Service\Workflow\Stamp\ThrowExceptionStamp;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowTransitionInterface;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
 class ConfirmOrder implements WorkflowTransitionInterface
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
         private readonly OrderRepository $orderRepository,
         private readonly MailerInterface $mailer,
         private readonly string $orderConfirmationEmail,
-        private readonly WorkflowEnvelopeStampHandler $workflowEnvelopeStampHandler,
     ) {
     }
 
-    public function handle(WorkflowEntry $workflowEntry): void
+    public function handle(WorkflowEnvelope $envelope): WorkflowEnvelope
     {
         /** @var OrderIdStamp $orderIdStamp */
-        $orderIdStamp = $this->workflowEnvelopeStampHandler->getStamp(
-            $workflowEntry,
-            OrderIdStamp::class,
-        );
-
+        $orderIdStamp = $envelope->getStamp(OrderIdStamp::class);
         $orderId = $orderIdStamp->getOrderId();
 
         $order = $this->orderRepository->find($orderId);
@@ -54,26 +45,25 @@ class ConfirmOrder implements WorkflowTransitionInterface
                 ->text(sprintf('Order %s confirmed', $orderId))
         );
 
-        $workflowEntry->setCurrentState(State::Confirmed->value);
-        $workflowEntry->setNextTransition($this->getNextTransition());
-
-        $this->entityManager->persist($workflowEntry);
-        $this->entityManager->flush();
-
         /**
          * This block simulates one time error to allow retry the workflow later
          */
-        $envelope = $this->workflowEnvelopeStampHandler->getEnvelope($workflowEntry);
-
         if ($envelope->hasStampWithType(ThrowExceptionStamp::class)
             && !$envelope->hasStampWithType(WorkflowInternalErrorStamp::class)
         ) {
             throw new WorkflowInternalErrorException('An internal error occurred');
         }
+
+        return $envelope;
     }
 
     public function getNextTransition(): ?string
     {
         return Transition::CompleteOrder->value;
+    }
+
+    public function getState(): ?string
+    {
+        return State::Confirmed->value;
     }
 }

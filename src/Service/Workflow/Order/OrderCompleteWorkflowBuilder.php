@@ -5,15 +5,15 @@ namespace App\Service\Workflow\Order;
 
 use App\Entity\Order;
 use App\Entity\WorkflowEntry;
-use App\Service\Workflow\Envelope\WorkflowEnvelopeStampHandler;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowType;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class OrderCompleteWorkflowBuilder
 {
     public function __construct(
-        private readonly WorkflowEnvelopeStampHandler $workflowEnvelopeStampHandler,
+        private readonly NormalizerInterface $normalizer,
     ) {
     }
 
@@ -27,7 +27,8 @@ class OrderCompleteWorkflowBuilder
             ], $additionStamps
         ));
 
-        $stamps = $this->workflowEnvelopeStampHandler->getNormalizedStamps($envelope);
+        /** @var array $stamps */
+        $stamps = $this->normalizer->normalize($envelope, WorkflowEnvelope::class);
 
         return WorkflowEntry::create(
             WorkflowType::OrderComplete,
