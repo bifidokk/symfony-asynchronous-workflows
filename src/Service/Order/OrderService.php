@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Service\Order;
 
 use App\Entity\Order;
-use App\Service\Workflow\Order\OrderCompleteWorkflowBuilder;
+use App\Service\Workflow\Order\OrderSendWorkflowBuilder;
 use App\Service\Workflow\Stamp\ThrowExceptionStamp;
 use App\Service\Workflow\WorkflowHandler;
 use Doctrine\ORM\EntityManagerInterface;
@@ -14,7 +14,7 @@ class OrderService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly WorkflowHandler $workflowHandler,
-        private readonly OrderCompleteWorkflowBuilder $orderCompleteWorkflowBuilder,
+        private readonly OrderSendWorkflowBuilder $orderSendWorkflowBuilder,
     ) {
     }
 
@@ -27,7 +27,7 @@ class OrderService
         $this->entityManager->flush();
 
         $this->workflowHandler->handle(
-            $this->orderCompleteWorkflowBuilder->create($order)
+            $this->orderSendWorkflowBuilder->create($order)
         );
 
         return $order;
@@ -42,7 +42,7 @@ class OrderService
         $this->entityManager->flush();
 
         $this->workflowHandler->handle(
-            $this->orderCompleteWorkflowBuilder->create(
+            $this->orderSendWorkflowBuilder->create(
                 $order,
                 [
                     new ThrowExceptionStamp(),

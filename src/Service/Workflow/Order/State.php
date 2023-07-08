@@ -7,7 +7,7 @@ enum State: string
 {
     case Verified = 'verified';
 
-    case Confirmed = 'confirmed';
+    case Sent = 'sent';
 
-    case Completed = 'completed';
+    case MarkedAsSent = 'marked_as_sent';
 }

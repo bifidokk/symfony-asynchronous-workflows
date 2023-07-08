@@ -10,7 +10,7 @@ use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowType;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class OrderCompleteWorkflowBuilder
+class OrderSendWorkflowBuilder
 {
     public function __construct(
         private readonly NormalizerInterface $normalizer,
@@ -31,7 +31,7 @@ class OrderCompleteWorkflowBuilder
         $stamps = $this->normalizer->normalize($envelope, WorkflowEnvelope::class);
 
         return WorkflowEntry::create(
-            WorkflowType::OrderComplete,
+            WorkflowType::OrderSend,
             Transition::VerifyOrder->value,
             $stamps
         );

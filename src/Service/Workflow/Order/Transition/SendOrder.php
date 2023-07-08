@@ -16,7 +16,7 @@ use App\Service\Workflow\WorkflowTransitionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-class ConfirmOrder implements WorkflowTransitionInterface
+class SendOrder implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly OrderRepository $orderRepository,
@@ -59,11 +59,11 @@ class ConfirmOrder implements WorkflowTransitionInterface
 
     public function getNextTransition(): ?string
     {
-        return Transition::CompleteOrder->value;
+        return Transition::MarkOrderAsSent->value;
     }
 
     public function getState(): ?string
     {
-        return State::Confirmed->value;
+        return State::Sent->value;
     }
 }

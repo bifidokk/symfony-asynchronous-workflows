@@ -11,7 +11,7 @@ use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CompleteOrder implements WorkflowTransitionInterface
+class MarkOrderAsSent implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -27,7 +27,7 @@ class CompleteOrder implements WorkflowTransitionInterface
 
         /** @var Order $order */
         $order = $this->orderRepository->find($orderId);
-        $order->complete();
+        $order->markAsSent();
 
         $this->entityManager->persist($order);
         $this->entityManager->flush();
@@ -42,6 +42,6 @@ class CompleteOrder implements WorkflowTransitionInterface
 
     public function getState(): ?string
     {
-        return State::Completed->value;
+        return State::MarkedAsSent->value;
     }
 }

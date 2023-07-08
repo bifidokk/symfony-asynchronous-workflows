@@ -35,12 +35,12 @@ class OrderServiceTest extends TestCase
     /**
      * @test
      */
-    public function itCreatesOrder(): void
+    public function itSendsOrder(): void
     {
         $order = $this->orderService->createOrder();
         $this->entityManager->refresh($order);
 
-        $this->assertTrue($order->isCompleted());
+        $this->assertTrue($order->isSent());
 
         $workflowEntry = $this->workflowEntryRepository->findOneBy(
             [],
@@ -50,8 +50,8 @@ class OrderServiceTest extends TestCase
         $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
         $this->entityManager->refresh($workflowEntry);
 
-        $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
-        $this->assertEquals(State::Completed->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
+        $this->assertEquals(State::MarkedAsSent->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
 
         /** @var WorkflowEnvelope $envelope */
@@ -72,7 +72,7 @@ class OrderServiceTest extends TestCase
         $order = $this->orderService->createOrderWithErrorFlow();
         $this->entityManager->refresh($order);
 
-        $this->assertFalse($order->isCompleted());
+        $this->assertFalse($order->isSent());
 
         $workflowEntry = $this->workflowEntryRepository->findOneBy(
             [],
@@ -82,7 +82,7 @@ class OrderServiceTest extends TestCase
         $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
         $this->entityManager->refresh($workflowEntry);
 
-        $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
+        $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
     }
@@ -95,7 +95,7 @@ class OrderServiceTest extends TestCase
         $order = $this->orderService->createOrderWithErrorFlow();
         $this->entityManager->refresh($order);
 
-        $this->assertFalse($order->isCompleted());
+        $this->assertFalse($order->isSent());
 
         $workflowEntry = $this->workflowEntryRepository->findOneBy(
             [],
@@ -105,14 +105,14 @@ class OrderServiceTest extends TestCase
         $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
         $this->entityManager->refresh($workflowEntry);
 
-        $this->assertEquals(WorkflowType::OrderComplete, $workflowEntry->getWorkflowType());
+        $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
 
         $this->workflowHandler->retry($workflowEntry);
         $this->entityManager->refresh($workflowEntry);
 
-        $this->assertEquals(State::Completed->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(State::MarkedAsSent->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
         $this->assertEquals(1, $workflowEntry->getRetries());
     }

@@ -7,5 +7,5 @@ enum WorkflowType: string
 {
     case DefaultType = 'default';
 
-    case OrderComplete = 'order_complete';
+    case OrderSend = 'order_send';
 }

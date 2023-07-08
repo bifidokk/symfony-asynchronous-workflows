@@ -40,7 +40,7 @@ class VerifyOrder implements WorkflowTransitionInterface
 
     public function getNextTransition(): ?string
     {
-        return Transition::ConfirmOrder->value;
+        return Transition::SendOrder->value;
     }
 
     public function getState(): ?string

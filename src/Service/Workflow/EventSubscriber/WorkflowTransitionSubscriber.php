@@ -42,10 +42,16 @@ class WorkflowTransitionSubscriber implements EventSubscriberInterface
         $this->entityManager->getConnection()->beginTransaction();
 
         try {
-            $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
+            $transitionKey = sprintf(
+                '%s.%s',
+                $workflowEntry->getWorkflowType()->value,
+                $workflowEntry->getNextTransition(),
+            );
 
             /** @var WorkflowTransitionInterface $transition */
-            $transition = $this->transitions->get($workflowEntry->getNextTransition());
+            $transition = $this->transitions->get($transitionKey);
+
+            $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
             $envelope = $transition->handle($envelope);
 
             /** @var array $stamps */

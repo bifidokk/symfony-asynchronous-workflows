@@ -1,6 +1,6 @@
 framework:
     workflows:
-        order_complete:
+        order_send:
             type: state_machine
             supports:
                 - App\Entity\WorkflowEntry
@@ -10,16 +10,16 @@ framework:
             places:
                 - initialised
                 - verified
-                - confirmed
-                - completed
+                - sent
+                - marked_as_sent
             transitions:
                 verify_order:
                     from: initialised
                     to: verified
-                confirm_order:
+                send_order:
                     from: verified
-                    to: confirmed
-                complete_order:
-                    from: confirmed
-                    to: completed
+                    to: sent
+                mark_order_as_sent:
+                    from: sent
+                    to: marked_as_sent
 

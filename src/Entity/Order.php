@@ -21,8 +21,8 @@ class Order
     #[ORM\Column(type: "string")]
     private string $description;
 
-    #[ORM\Column(name: "is_completed", type: "boolean", options: ["default" => 0])]
-    private bool $isCompleted = false;
+    #[ORM\Column(name: "is_sent", type: "boolean", options: ["default" => 0])]
+    private bool $isSent = false;
 
     public function getId(): Uuid
     {
@@ -39,13 +39,13 @@ class Order
         $this->description = $description;
     }
 
-    public function isCompleted(): bool
+    public function isSent(): bool
     {
-        return $this->isCompleted;
+        return $this->isSent;
     }
 
-    public function complete(): void
+    public function markAsSent(): void
     {
-        $this->isCompleted = true;
+        $this->isSent = true;
     }
 }

@@ -29,7 +29,7 @@ services:
         tags: [ 'container.service_locator' ]
         arguments:
             -
-                order_complete: '@state_machine.order_complete'
+                order_send: '@state_machine.order_send'
 
     App\Service\Workflow\EventSubscriber\WorkflowNextStateSubscriber:
         arguments:
@@ -40,9 +40,9 @@ services:
         tags: [ 'container.service_locator' ]
         arguments:
             -
-                verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
-                confirm_order: '@App\Service\Workflow\Order\Transition\ConfirmOrder'
-                complete_order: '@App\Service\Workflow\Order\Transition\CompleteOrder'
+                order_send.verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
+                order_send.send_order: '@App\Service\Workflow\Order\Transition\SendOrder'
+                order_send.mark_order_as_sent: '@App\Service\Workflow\Order\Transition\MarkOrderAsSent'
 
     App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber:
         arguments:
