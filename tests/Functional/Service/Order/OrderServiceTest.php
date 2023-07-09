@@ -56,7 +56,7 @@ class OrderServiceTest extends TestCase
 
         /** @var WorkflowEnvelope $envelope */
         $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
-        $this->assertTrue($envelope->hasStampWithType(OrderIdStamp::class));
+        $this->assertTrue($envelope->hasStamp(OrderIdStamp::class));
 
         $stamp = $envelope->getStamp(OrderIdStamp::class);
         $this->assertInstanceOf(OrderIdStamp::class, $stamp);

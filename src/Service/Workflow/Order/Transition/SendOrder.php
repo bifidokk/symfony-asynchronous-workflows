@@ -6,12 +6,15 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
+use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
 use App\Service\Workflow\Stamp\ThrowExceptionStamp;
+use App\Service\Workflow\Stamp\ThrowProcessInQueueExceptionStamp;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
+use App\Service\Workflow\Stamp\WorkflowProcessingInQueueStamp;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
@@ -48,10 +51,16 @@ class SendOrder implements WorkflowTransitionInterface
         /**
          * This block simulates one time error to allow retry the workflow later
          */
-        if ($envelope->hasStampWithType(ThrowExceptionStamp::class)
-            && !$envelope->hasStampWithType(WorkflowInternalErrorStamp::class)
+        if ($envelope->hasStamp(ThrowExceptionStamp::class)
+            && !$envelope->hasStamp(WorkflowInternalErrorStamp::class)
         ) {
             throw new WorkflowInternalErrorException('An internal error occurred');
+        }
+
+        if ($envelope->hasStamp(ThrowProcessInQueueExceptionStamp::class)
+            && !$envelope->hasStamp(WorkflowProcessingInQueueStamp::class)
+        ) {
+            throw new WorkflowProcessInQueueException('An internal error occurred. Workflow will be processed in queue');
         }
 
         return $envelope;

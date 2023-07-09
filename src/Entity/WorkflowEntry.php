@@ -137,4 +137,9 @@ class WorkflowEntry implements WorkflowInterface
     {
         $this->retries++;
     }
+
+    public function isQueueProcessing(): bool
+    {
+        return $this->status === WorkflowStatus::QueueProcessing;
+    }
 }

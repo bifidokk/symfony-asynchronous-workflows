@@ -4,12 +4,16 @@ declare(strict_types=1);
 namespace App\Service\Workflow;
 
 use App\Entity\WorkflowEntry;
+use App\Message\WorkflowEntryProcessNotification;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
+use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
+use App\Service\Workflow\Stamp\WorkflowProcessingInQueueStamp;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -22,6 +26,7 @@ class WorkflowHandler
         private readonly EntityManagerInterface $entityManager,
         private readonly NormalizerInterface $normalizer,
         private readonly DenormalizerInterface $denormalizer,
+        private readonly MessageBusInterface $bus,
     ) {
     }
 
@@ -29,6 +34,19 @@ class WorkflowHandler
     {
         try {
             $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
+        } catch (WorkflowProcessInQueueException $exception) {
+            $this->logger->error(
+                sprintf(
+                    'An internal error occurred during handling workflow "%s". Workflow state: %s. The workflow will be processed in a queue',
+                    $workflowEntry->getWorkflowType()->value,
+                    $workflowEntry->getCurrentState(),
+                ),
+                [
+                    $exception
+                ]
+            );
+
+            $this->processInQueue($workflowEntry);
         } catch (WorkflowInternalErrorException | \Throwable  $exception) {
             $this->logger->error(
                 sprintf(
@@ -44,7 +62,6 @@ class WorkflowHandler
             $workflowEntry->setStatus(WorkflowStatus::Stopped);
             /** @var WorkflowEnvelope $envelope */
             $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
-
 
             $envelope->addStamp(new WorkflowInternalErrorStamp(
                 $exception->getMessage(),
@@ -68,5 +85,27 @@ class WorkflowHandler
         $this->entityManager->flush();
 
         $this->handle($workflowEntry);
+    }
+
+    public function processInQueue(WorkflowEntry $workflowEntry): void
+    {
+        $workflowEntry->setStatus(WorkflowStatus::QueueProcessing);
+
+        /** @var WorkflowEnvelope $envelope */
+        $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
+
+        if (!$envelope->hasStamp(WorkflowProcessingInQueueStamp::class)) {
+            $envelope->addStamp(new WorkflowProcessingInQueueStamp());
+        }
+
+        /** @var array<WorkflowStampInterface> $stamps */
+        $stamps = $this->normalizer->normalize($envelope, 'array');
+        $workflowEntry->setStamps($stamps);
+
+        $this->entityManager->persist($workflowEntry);
+        $this->entityManager->flush();
+
+        $orderMessage = new WorkflowEntryProcessNotification($workflowEntry->getId());
+        $this->bus->dispatch($orderMessage);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Service\Order;
 use App\Entity\Order;
 use App\Service\Workflow\Order\OrderSendWorkflowBuilder;
 use App\Service\Workflow\Stamp\ThrowExceptionStamp;
+use App\Service\Workflow\Stamp\ThrowProcessInQueueExceptionStamp;
 use App\Service\Workflow\WorkflowHandler;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -53,4 +54,23 @@ class OrderService
         return $order;
     }
 
+    public function createOrderWithErrorAndProcessingInQueueFlow(): Order
+    {
+        $order = new Order();
+        $order->setDescription('my order');
+
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+
+        $this->workflowHandler->handle(
+            $this->orderSendWorkflowBuilder->create(
+                $order,
+                [
+                    new ThrowProcessInQueueExceptionStamp(),
+                ]
+            ),
+        );
+
+        return $order;
+    }
 }

@@ -10,4 +10,6 @@ enum WorkflowStatus: string
     case Finished = 'finished';
 
     case Stopped = 'stopped';
+
+    case QueueProcessing = 'queue_processing';
 }
