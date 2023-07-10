@@ -9,6 +9,7 @@ use App\Service\Order\OrderService;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
+use App\Service\Workflow\Stamp\WorkflowProcessingInQueueStamp;
 use App\Service\Workflow\WorkflowHandler;
 use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowType;
@@ -115,5 +116,32 @@ class OrderServiceTest extends TestCase
         $this->assertEquals(State::MarkedAsSent->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
         $this->assertEquals(1, $workflowEntry->getRetries());
+    }
+
+    /**
+     * @test
+     */
+    public function itProcessesWorkflowAsynchronouslyIfErrorOccurred(): void
+    {
+        $order = $this->orderService->createOrderWithErrorAndProcessingInQueueFlow();
+        $this->entityManager->refresh($order);
+
+        $this->assertTrue($order->isSent());
+
+        $workflowEntry = $this->workflowEntryRepository->findOneBy(
+            [],
+            ['createdAt' => 'desc'],
+        );
+
+        $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
+        $this->entityManager->refresh($workflowEntry);
+
+        /** @var WorkflowEnvelope $envelope */
+        $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
+        $this->assertTrue($envelope->hasStamp(WorkflowProcessingInQueueStamp::class));
+
+        $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
+        $this->assertEquals(State::MarkedAsSent->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
     }
 }
