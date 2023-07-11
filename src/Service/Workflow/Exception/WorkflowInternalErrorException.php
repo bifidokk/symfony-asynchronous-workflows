@@ -5,4 +5,5 @@ namespace App\Service\Workflow\Exception;
 
 class WorkflowInternalErrorException extends \RuntimeException
 {
+    protected $message = 'An internal error occurred';
 }

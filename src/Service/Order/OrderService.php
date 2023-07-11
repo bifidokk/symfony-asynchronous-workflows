@@ -34,6 +34,21 @@ class OrderService
         return $order;
     }
 
+    public function createEmptyDescriptionOrder(): Order
+    {
+        $order = new Order();
+        $order->setDescription('');
+
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+
+        $this->workflowHandler->handle(
+            $this->orderSendWorkflowBuilder->create($order)
+        );
+
+        return $order;
+    }
+
     public function createOrderWithErrorFlow(): Order
     {
         $order = new Order();

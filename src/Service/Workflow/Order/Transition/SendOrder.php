@@ -7,6 +7,7 @@ use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
 use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
+use App\Service\Workflow\Exception\WorkflowStopException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
@@ -37,16 +38,20 @@ class SendOrder implements WorkflowTransitionInterface
         $order = $this->orderRepository->find($orderId);
 
         if (!$order instanceof Order) {
-            throw new WorkflowInternalErrorException(sprintf('Order %s not found', $orderId));
+            throw new WorkflowStopException(sprintf('Order %s not found', $orderId));
         }
 
-        $this->mailer->send(
-            (new Email())
-                ->from('admin@order.io')
-                ->to($this->orderConfirmationEmail)
-                ->subject('Order confirmed')
-                ->text(sprintf('Order %s confirmed', $orderId))
-        );
+        try {
+            $this->mailer->send(
+                (new Email())
+                    ->from('admin@order.io')
+                    ->to($this->orderConfirmationEmail)
+                    ->subject('Order confirmed')
+                    ->text(sprintf('Order %s confirmed', $orderId))
+            );
+        } catch (\Throwable $exception) {
+            throw new WorkflowProcessInQueueException();
+        }
 
         /**
          * This block simulates one time error to allow retry the workflow later
@@ -54,13 +59,13 @@ class SendOrder implements WorkflowTransitionInterface
         if ($envelope->hasStamp(ThrowExceptionStamp::class)
             && !$envelope->hasStamp(WorkflowInternalErrorStamp::class)
         ) {
-            throw new WorkflowInternalErrorException('An internal error occurred');
+            throw new WorkflowInternalErrorException();
         }
 
         if ($envelope->hasStamp(ThrowProcessInQueueExceptionStamp::class)
             && !$envelope->hasStamp(WorkflowProcessingInQueueStamp::class)
         ) {
-            throw new WorkflowProcessInQueueException('An internal error occurred. Workflow will be processed in queue');
+            throw new WorkflowProcessInQueueException();
         }
 
         return $envelope;

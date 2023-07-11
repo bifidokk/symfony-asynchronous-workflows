@@ -44,7 +44,7 @@ class RetryWorkflowCommand extends Command
 
         $workflowEntry = $this->workflowEntryRepository->findOneBy([
             'id' => $workflowEntryId,
-            'status' => WorkflowStatus::Stopped->value,
+            'status' => WorkflowStatus::Failed->value,
         ]);
 
         if (!$workflowEntry instanceof WorkflowEntry) {

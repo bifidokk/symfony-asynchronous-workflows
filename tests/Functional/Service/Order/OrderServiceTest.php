@@ -85,7 +85,7 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
-        $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
+        $this->assertEquals(WorkflowStatus::Failed, $workflowEntry->getStatus());
     }
 
     /**
@@ -108,7 +108,7 @@ class OrderServiceTest extends TestCase
 
         $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
-        $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
+        $this->assertEquals(WorkflowStatus::Failed, $workflowEntry->getStatus());
 
         $this->workflowHandler->retry($workflowEntry);
         $this->entityManager->refresh($workflowEntry);
@@ -143,5 +143,26 @@ class OrderServiceTest extends TestCase
         $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
         $this->assertEquals(State::MarkedAsSent->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Finished, $workflowEntry->getStatus());
+    }
+
+    /**
+     * @test
+     */
+    public function itMarksWorkflowAsStoppedIfPermanentErrorOccurred(): void
+    {
+        $order = $this->orderService->createEmptyDescriptionOrder();
+        $this->entityManager->refresh($order);
+
+        $this->assertFalse($order->isSent());
+
+        $workflowEntry = $this->workflowEntryRepository->findOneBy(
+            [],
+            ['createdAt' => 'desc'],
+        );
+
+        $this->assertInstanceOf(WorkflowEntry::class, $workflowEntry);
+        $this->entityManager->refresh($workflowEntry);
+
+        $this->assertEquals(WorkflowStatus::Stopped, $workflowEntry->getStatus());
     }
 }

@@ -5,6 +5,7 @@ namespace App\Service\Workflow\Order\Transition;
 
 use App\Entity\Order;
 use App\Repository\OrderRepository;
+use App\Service\Workflow\Exception\WorkflowStopException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
@@ -27,6 +28,11 @@ class MarkOrderAsSent implements WorkflowTransitionInterface
 
         /** @var Order $order */
         $order = $this->orderRepository->find($orderId);
+
+        if (!$order instanceof Order) {
+            throw new WorkflowStopException(sprintf('Order %s not found', $orderId));
+        }
+
         $order->markAsSent();
 
         $this->entityManager->persist($order);

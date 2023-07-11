@@ -9,6 +9,7 @@ use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
 use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
+use App\Service\Workflow\Exception\WorkflowStopException;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
 use App\Service\Workflow\Stamp\WorkflowProcessingInQueueStamp;
 use Doctrine\ORM\EntityManagerInterface;
@@ -47,6 +48,22 @@ class WorkflowHandler
             );
 
             $this->processInQueue($workflowEntry);
+        } catch (WorkflowStopException $exception) {
+            $this->logger->error(
+                sprintf(
+                    'An permanent internal error occurred during handling workflow "%s". Workflow state: %s. The workflow stopped.',
+                    $workflowEntry->getWorkflowType()->value,
+                    $workflowEntry->getCurrentState(),
+                ),
+                [
+                    $exception
+                ]
+            );
+
+            $workflowEntry->setStatus(WorkflowStatus::Stopped);
+
+            $this->entityManager->persist($workflowEntry);
+            $this->entityManager->flush();
         } catch (WorkflowInternalErrorException | \Throwable  $exception) {
             $this->logger->error(
                 sprintf(
@@ -59,7 +76,7 @@ class WorkflowHandler
                 ]
             );
 
-            $workflowEntry->setStatus(WorkflowStatus::Stopped);
+            $workflowEntry->setStatus(WorkflowStatus::Failed);
             /** @var WorkflowEnvelope $envelope */
             $envelope = $this->denormalizer->denormalize($workflowEntry->getStamps(), WorkflowEnvelope::class);
 
