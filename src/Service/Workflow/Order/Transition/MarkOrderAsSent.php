@@ -26,7 +26,7 @@ class MarkOrderAsSent implements WorkflowTransitionInterface
         $orderIdStamp = $envelope->getStamp(OrderIdStamp::class);
         $orderId = $orderIdStamp->getOrderId();
 
-        /** @var Order $order */
+        /** @var Order|null $order */
         $order = $this->orderRepository->find($orderId);
 
         if (!$order instanceof Order) {
