@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Service\Workflow\Envelope;
 
 
-use App\Service\Workflow\Exception\CorruptedEnvelopeException;
 use App\Service\Workflow\WorkflowStampInterface;
 
 class WorkflowEnvelope
@@ -16,16 +15,6 @@ class WorkflowEnvelope
      */
     public function __construct(array $stamps = [])
     {
-        $this->replace($stamps);
-    }
-
-    /**
-     * @param WorkflowStampInterface[] $stamps
-     */
-    public function replace(array $stamps): void
-    {
-        $this->stamps = [];
-
         foreach ($stamps as $stamp) {
             $this->addStamp($stamp);
         }
@@ -43,23 +32,13 @@ class WorkflowEnvelope
 
     public function getStamp(string $stampClass): WorkflowStampInterface
     {
-        $stamps = $this->getStampsWithType($stampClass);
+        $stamps = $this->stamps[$stampClass] ?? [];
 
-        if (count($stamps) !== 1) {
-            throw CorruptedEnvelopeException::shouldHaveExactOneStamp($stampClass, count($stamps));
+        if (count($stamps) === 0) {
+            throw new \RuntimeException(sprintf('Stamp with type %s is not found', $stampClass));
         }
 
         return reset($stamps);
-    }
-
-    /**
-     * @param string $stampClass
-     *
-     * @return WorkflowStampInterface[]
-     */
-    public function getStampsWithType(string $stampClass): array
-    {
-        return $this->stamps[$stampClass] ?? [];
     }
 
     public function hasStamp(string $stampClass): bool
