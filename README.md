@@ -160,7 +160,7 @@ class MarkOrderAsSent implements WorkflowTransitionInterface
 }
 ```
 
-After that transition should be added to registry in the ```services.yaml```
+After that transitions should be added to registry in the ```services.yaml```
 
 ```yaml
 app.transitions:
