@@ -22,7 +22,7 @@ class WorkflowEnvelope
 
     public function addStamp(WorkflowStampInterface $stamp): void
     {
-        $this->stamps[\get_class($stamp)][] = $stamp;
+        $this->stamps[$stamp::class][] = $stamp;
     }
 
     public function getStamps(): array
@@ -30,19 +30,19 @@ class WorkflowEnvelope
         return $this->stamps;
     }
 
-    public function getStamp(string $stampClass): WorkflowStampInterface
+    public function getStamp(string $stampFqcn): WorkflowStampInterface
     {
-        $stamps = $this->stamps[$stampClass] ?? [];
+        $stamps = $this->stamps[$stampFqcn] ?? [];
 
         if (count($stamps) === 0) {
-            throw new \RuntimeException(sprintf('Stamp with type %s is not found', $stampClass));
+            throw new \RuntimeException(sprintf('Stamp with type %s is not found', $stampFqcn));
         }
 
         return reset($stamps);
     }
 
-    public function hasStamp(string $stampClass): bool
+    public function hasStamp(string $stampFqcn): bool
     {
-        return isset($this->stamps[$stampClass]);
+        return isset($this->stamps[$stampFqcn]);
     }
 }
