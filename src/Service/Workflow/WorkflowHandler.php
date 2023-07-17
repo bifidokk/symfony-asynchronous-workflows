@@ -8,8 +8,8 @@ use App\Message\WorkflowEntryProcessNotification;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
-use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
-use App\Service\Workflow\Exception\WorkflowStopException;
+use App\Service\Workflow\Exception\ProceedWorkflowInQueueException;
+use App\Service\Workflow\Exception\StopWorkflowException;
 use App\Service\Workflow\Stamp\WorkflowInternalErrorStamp;
 use App\Service\Workflow\Stamp\WorkflowProcessingInQueueStamp;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,7 +35,7 @@ class WorkflowHandler
     {
         try {
             $this->eventDispatcher->dispatch(new WorkflowNextStateEvent($workflowEntry));
-        } catch (WorkflowProcessInQueueException $exception) {
+        } catch (ProceedWorkflowInQueueException $exception) {
             $this->logger->error(
                 sprintf(
                     'An internal error occurred during handling workflow "%s". Workflow state: %s. The workflow will be processed in a queue',
@@ -48,7 +48,7 @@ class WorkflowHandler
             );
 
             $this->processInQueue($workflowEntry);
-        } catch (WorkflowStopException $exception) {
+        } catch (StopWorkflowException $exception) {
             $this->logger->error(
                 sprintf(
                     'An permanent internal error occurred during handling workflow "%s". Workflow state: %s. The workflow stopped.',

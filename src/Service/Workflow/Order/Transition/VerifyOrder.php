@@ -6,8 +6,8 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
-use App\Service\Workflow\Exception\WorkflowStopException;
-use App\Service\Workflow\Order\Exception\OrderException;
+use App\Service\Workflow\Exception\StopWorkflowException;
+use App\Service\Workflow\Order\Exception\OrderWorkflowException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
@@ -29,11 +29,11 @@ class VerifyOrder implements WorkflowTransitionInterface
         $order = $this->orderRepository->find($orderId);
 
         if (!$order instanceof Order) {
-            throw new WorkflowStopException(sprintf('Order %s not found', $orderId));
+            throw new StopWorkflowException(sprintf('Order %s not found', $orderId));
         }
 
         if ($order->getDescription() === '') {
-            throw OrderException::shouldHaveDescription($order);
+            throw OrderWorkflowException::shouldHaveDescription($order);
         }
 
         return $envelope;

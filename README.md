@@ -7,7 +7,7 @@ If transition execution failed we can retry it later by command or asynchronousl
 Every transition contains only business logic and doesn't depend on the workflow implementation.
 It uses only two entities: `WorkflowEnvelope` and `WorkflowStampInterface` to use data from previous transitions and pass its own result to the next steps.
 
-As example, an "Order" workflow is created:
+As an example, an "Order" workflow is created. The example demonstrates how it's possible to retry the flow after failure:
 
 ```php
 src/Service/Order/OrderService.php
@@ -51,6 +51,19 @@ framework:
 
 Every workflow handles ```App\Entity\WorkflowEntry``` that keeps current and next states and store business logic data using stamps ```App\Service\Workflow\WorkflowStampInterface```.
 Stamps are serialized in the Envelope ```App\Service\Workflow\Envelope\WorkflowEnvelope```.
+
+The heart of every workflow is ```App\Service\Workflow\WorkflowHandler``` and ```App\Service\Workflow\EventSubscriber```.
+
+The first one starts the workflow execution and handles all exceptions.
+The second one runs transitions and saves transition's result in the database.
+
+There several exceptions that allows to control the workflow:
+
+```App\Service\Workflow\Exception\StopWorkflowException``` - finally stops the workflow is some permanent error occurred
+
+```App\Service\Workflow\Exception\WorkflowInternalErrorException``` - temporary stops the workflow to retry it later, for example, if 3rd party service is temporarily unavailable
+
+```App\Service\Workflow\Exception\ProceedWorkflowInQueueException``` - temporary stops the workflow and send the retry process to a queue
 
 
 ## Transitions
@@ -159,6 +172,3 @@ app.transitions:
             order_send.send_order: '@App\Service\Workflow\Order\Transition\SendOrder'
             order_send.mark_order_as_sent: '@App\Service\Workflow\Order\Transition\MarkOrderAsSent'
 ```
-
-
-The example demonstrates how it's possible to retry the flow after failure.

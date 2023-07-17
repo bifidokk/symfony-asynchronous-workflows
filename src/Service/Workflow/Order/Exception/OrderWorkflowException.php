@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace App\Service\Workflow\Order\Exception;
 
 use App\Entity\Order;
-use App\Service\Workflow\Exception\WorkflowStopException;
+use App\Service\Workflow\Exception\StopWorkflowException;
 
-class OrderException extends WorkflowStopException
+class OrderWorkflowException extends StopWorkflowException
 {
     public static function shouldHaveDescription(Order $order): \RuntimeException
     {

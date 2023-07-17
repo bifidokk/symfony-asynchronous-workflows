@@ -6,7 +6,6 @@ namespace App\Service\Workflow\EventSubscriber;
 use App\Entity\WorkflowEntry;
 use App\Service\Workflow\Envelope\WorkflowEnvelope;
 use App\Service\Workflow\Event\WorkflowNextStateEvent;
-use App\Service\Workflow\Order\State;
 use App\Service\Workflow\WorkflowStatus;
 use App\Service\Workflow\WorkflowTransitionInterface;
 use Doctrine\ORM\EntityManagerInterface;

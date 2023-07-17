@@ -6,8 +6,8 @@ namespace App\Service\Workflow\Order\Transition;
 use App\Entity\Order;
 use App\Repository\OrderRepository;
 use App\Service\Workflow\Exception\WorkflowInternalErrorException;
-use App\Service\Workflow\Exception\WorkflowProcessInQueueException;
-use App\Service\Workflow\Exception\WorkflowStopException;
+use App\Service\Workflow\Exception\ProceedWorkflowInQueueException;
+use App\Service\Workflow\Exception\StopWorkflowException;
 use App\Service\Workflow\Order\Stamp\OrderIdStamp;
 use App\Service\Workflow\Order\State;
 use App\Service\Workflow\Order\Transition;
@@ -38,7 +38,7 @@ class SendOrder implements WorkflowTransitionInterface
         $order = $this->orderRepository->find($orderId);
 
         if (!$order instanceof Order) {
-            throw new WorkflowStopException(sprintf('Order %s not found', $orderId));
+            throw new StopWorkflowException(sprintf('Order %s not found', $orderId));
         }
 
         try {
@@ -50,7 +50,7 @@ class SendOrder implements WorkflowTransitionInterface
                     ->text(sprintf('Order %s confirmed', $orderId))
             );
         } catch (\Throwable $exception) {
-            throw new WorkflowProcessInQueueException();
+            throw new ProceedWorkflowInQueueException();
         }
 
         /**
@@ -65,7 +65,7 @@ class SendOrder implements WorkflowTransitionInterface
         if ($envelope->hasStamp(ThrowProcessInQueueExceptionStamp::class)
             && !$envelope->hasStamp(WorkflowProcessingInQueueStamp::class)
         ) {
-            throw new WorkflowProcessInQueueException();
+            throw new ProceedWorkflowInQueueException();
         }
 
         return $envelope;
