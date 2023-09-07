@@ -84,7 +84,7 @@ class OrderServiceTest extends TestCase
         $this->entityManager->refresh($workflowEntry);
 
         $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
-        $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(State::Approved->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Failed, $workflowEntry->getStatus());
     }
 
@@ -107,7 +107,7 @@ class OrderServiceTest extends TestCase
         $this->entityManager->refresh($workflowEntry);
 
         $this->assertEquals(WorkflowType::OrderSend, $workflowEntry->getWorkflowType());
-        $this->assertEquals(State::Verified->value, $workflowEntry->getCurrentState());
+        $this->assertEquals(State::Approved->value, $workflowEntry->getCurrentState());
         $this->assertEquals(WorkflowStatus::Failed, $workflowEntry->getStatus());
 
         $this->workflowHandler->retry($workflowEntry);

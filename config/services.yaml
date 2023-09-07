@@ -41,7 +41,8 @@ services:
         arguments:
             -
                 order_send.verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
-                order_send.send_order: '@App\Service\Workflow\Order\Transition\SendOrder'
+                order_send.approve_order: '@App\Service\Workflow\Order\Transition\ApproveOrder'
+                order_send.send_order_to_email: '@App\Service\Workflow\Order\Transition\SendOrderToEmail'
                 order_send.mark_order_as_sent: '@App\Service\Workflow\Order\Transition\MarkOrderAsSent'
 
     App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber:

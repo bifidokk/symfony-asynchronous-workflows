@@ -10,16 +10,20 @@ framework:
             places:
                 - initialised
                 - verified
-                - sent
+                - approved
+                - sent_to_email
                 - marked_as_sent
             transitions:
                 verify_order:
                     from: initialised
                     to: verified
-                send_order:
+                approve_order:
                     from: verified
-                    to: sent
+                    to: approved
+                send_order_to_email:
+                    from: approved
+                    to: sent_to_email
                 mark_order_as_sent:
-                    from: sent
-                    to: marked_as_sent
+                  from: sent_to_email
+                  to: marked_as_sent
 

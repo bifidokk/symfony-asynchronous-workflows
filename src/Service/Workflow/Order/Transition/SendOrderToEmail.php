@@ -20,7 +20,7 @@ use App\Service\Workflow\WorkflowTransitionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 
-class SendOrder implements WorkflowTransitionInterface
+class SendOrderToEmail implements WorkflowTransitionInterface
 {
     public function __construct(
         private readonly OrderRepository $orderRepository,
@@ -78,6 +78,6 @@ class SendOrder implements WorkflowTransitionInterface
 
     public function getState(): ?string
     {
-        return State::Sent->value;
+        return State::SentToEmail->value;
     }
 }

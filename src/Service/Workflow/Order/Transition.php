@@ -7,7 +7,9 @@ enum Transition: string
 {
     case VerifyOrder = 'verify_order';
 
-    case SendOrder = 'send_order';
+    case ApproveOrder = 'approve_order';
+
+    case SendOrderToEmail = 'send_order_to_email';
 
     case MarkOrderAsSent = 'mark_order_as_sent';
 }

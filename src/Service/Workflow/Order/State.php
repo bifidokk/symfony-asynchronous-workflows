@@ -7,7 +7,9 @@ enum State: string
 {
     case Verified = 'verified';
 
-    case Sent = 'sent';
+    case Approved = 'approved';
+
+    case SentToEmail = 'sent_to_email';
 
     case MarkedAsSent = 'marked_as_sent';
 }
