@@ -80,8 +80,7 @@ There are exceptions that allows to control the workflow:
 ## Transitions
 
 
-To implement this flow let's add three transitions. Every transition must implement
-```WorkflowTransitionInterface```.
+To implement this flow let's add three transitions. Every transition must implement ```WorkflowTransitionInterface```.
 
 ```WorkflowTransitionInterface::handle``` method should contain transition implementation.
 
