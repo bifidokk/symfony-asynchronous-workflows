@@ -201,7 +201,74 @@ app.transitions:
     tags: [ 'container.service_locator' ]
     arguments:
         -
-            order_send.verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
-            order_send.send_order: '@App\Service\Workflow\Order\Transition\SendOrder'
-            order_send.mark_order_as_sent: '@App\Service\Workflow\Order\Transition\MarkOrderAsSent'
+          order_send.verify_order: '@App\Service\Workflow\Order\Transition\VerifyOrder'
+          order_send.approve_order: '@App\Service\Workflow\Order\Transition\ApproveOrder'
+          order_send.send_order_to_email: '@App\Service\Workflow\Order\Transition\SendOrderToEmail'
+          order_send.mark_order_as_sent: '@App\Service\Workflow\Order\Transition\MarkOrderAsSent'
 ```
+
+and pass them to the ```App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber```
+
+```yaml
+App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber:
+    arguments:
+        $transitions: '@app.transitions'
+```
+
+
+Everything is ready! Now we only have to create a ```App\Entity\WorkflowEntry``` object with a ```order_send``` type and run it using ```App\Service\Workflow\WorkflowHandler::handle``` method
+
+```php
+class OrderService
+{
+    public function __construct(
+        private readonly EntityManagerInterface $entityManager,
+        private readonly WorkflowHandler $workflowHandler,
+        private readonly OrderSendWorkflowBuilder $orderSendWorkflowBuilder,
+    ) {
+    }
+
+    public function createOrder(): Order
+    {
+        $order = new Order();
+        $order->setDescription('my order');
+
+        $this->entityManager->persist($order);
+        $this->entityManager->flush();
+
+        $this->workflowHandler->handle(
+            $this->orderSendWorkflowBuilder->create($order)
+        );
+
+        return $order;
+    }
+}
+
+class OrderSendWorkflowBuilder
+{
+    public function __construct(
+        private readonly NormalizerInterface $normalizer,
+    ) {
+    }
+
+    public function create(
+        Order $order
+    ): WorkflowEntry {
+        $envelope = new WorkflowEnvelope(
+            [
+                OrderIdStamp::createWithOrderId($order->getId()),
+            ]
+        ));
+
+        /** @var array $stamps */
+        $stamps = $this->normalizer->normalize($envelope, WorkflowEnvelope::class);
+
+        return WorkflowEntry::create(
+            WorkflowType::OrderSend,
+            Transition::VerifyOrder->value,
+            $stamps
+        );
+    }
+}
+```
+
