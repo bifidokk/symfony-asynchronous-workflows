@@ -193,7 +193,7 @@ class MarkOrderAsSent implements WorkflowTransitionInterface
 }
 ```
 
-Because ```Symfony\Component\Workflow\Registry``` injection is deprecated it's convenient to group workflow transitions to the service locator:
+Because ```Symfony\Component\Workflow\Registry``` injection is deprecated it's convenient to group workflow transitions in the service locator:
 
 ```yaml
 app.transitions:
