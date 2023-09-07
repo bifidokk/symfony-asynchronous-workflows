@@ -42,7 +42,7 @@ class ApproveOrder implements WorkflowTransitionInterface
         try {
             $response = $this->client->request(
                 'GET',
-                'https://api.github.com/repos/symfony/symfony-docs'
+                'https://api.github.com/repos/bifidokk/symfony-asynchronous-workflows'
             );
         } catch (\Throwable) {
             throw new WorkflowInternalErrorException();
