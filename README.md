@@ -2,10 +2,18 @@
 
 This project demonstrates how Symfony workflow (state machine) might be used to split complex business logic into small pieces and ensure system reliability and fault tolerance.
 
-Any business logic flow is divided into state-machine transitions. Every transition is executed transactionally.
-If transition execution failed we can retry it later by command or asynchronously.
-Every transition contains only business logic and doesn't depend on the workflow implementation.
-It uses only two entities: `WorkflowEnvelope` and `WorkflowStampInterface` to use data from previous transitions and pass its own result to the next steps.
+Let's consider the flow: we create an order, send it to the order service, send it to user email and mark it as "sent".
+
+All these actions should be executed successfully, but there are many points of failure: invalid order data during creation, order service or vendor email provider failure, etc
+
+![](./public/static/workflow.png)
+
+Symfony workflow with retry logic allows to execute the complex business flow even if there are any errors during execution:
+
+- any business logic flow is divided into state-machine transitions. Every transition is executed transactionally.
+- if transition execution failed we can retry it later by command or asynchronously.
+- every transition contains only business logic and doesn't depend on the workflow implementation.
+- a transition uses only two entities: `WorkflowEnvelope` and `WorkflowStampInterface` to apply data from previous transitions and pass its own result to the next steps.
 
 As an example, an "Order" workflow is created. The example demonstrates how it's possible to retry the flow after failure:
 
@@ -13,57 +21,60 @@ As an example, an "Order" workflow is created. The example demonstrates how it's
 src/Service/Order/OrderService.php
 ```
 
-Let's imagine a flow: we create an order, send it to email and mark it as "sent".
-There are many points of failure: invalid order data during creation, vendor email provider failure, etc
-
 ## Symfony Workflow
 
 At first, need to create a new [Symfony workflow](https://symfony.com/doc/current/workflow.html):
 
 ```yaml
 framework:
-    workflows:
-        order_send:
-            type: state_machine
-            supports:
-                - App\Entity\WorkflowEntry
-            marking_store:
-                type: 'method'
-                property: 'currentState'
-            places:
-                - initialised
-                - verified
-                - sent
-                - marked_as_sent
-            transitions:
-                verify_order:
-                    from: initialised
-                    to: verified
-                send_order:
-                    from: verified
-                    to: sent
-                mark_order_as_sent:
-                    from: sent
-                    to: marked_as_sent
+  workflows:
+    order_send:
+      type: state_machine
+      supports:
+        - App\Entity\WorkflowEntry
+      marking_store:
+        type: 'method'
+        property: 'currentState'
+      places:
+        - initialised
+        - verified
+        - approved
+        - sent_to_email
+        - marked_as_sent
+      transitions:
+        verify_order:
+          from: initialised
+          to: verified
+        approve_order:
+          from: verified
+          to: approved
+        send_order_to_email:
+          from: approved
+          to: sent_to_email
+        mark_order_as_sent:
+          from: sent_to_email
+          to: marked_as_sent
 ```
 
 ## Core functionality
 
-Every workflow handles ```App\Entity\WorkflowEntry``` that keeps current and next states and store business logic data using stamps ```App\Service\Workflow\WorkflowStampInterface```.
+A workflow handles a ```App\Entity\WorkflowEntry``` object that keeps current and next states and store business logic data using stamps ```App\Service\Workflow\WorkflowStampInterface```.
 Stamps are serialized in the Envelope ```App\Service\Workflow\Envelope\WorkflowEnvelope```.
+The ```App\Entity\WorkflowEntry``` object is stored in database after every transition to allow resuming the process after failures.
 
-The heart of every workflow is ```App\Service\Workflow\WorkflowHandler``` and ```App\Service\Workflow\EventSubscriber```.
 
-The first one starts the workflow execution and handles all exceptions.
-The second one runs transitions and saves transition's result in the database.
+```App\Service\Workflow\WorkflowHandler``` service starts a workflow and handles exceptions.
 
-There several exceptions that allows to control the workflow:
+```App\Service\Workflow\EventSubscriber\WorkflowNextStateSubscriber``` and ```App\Service\Workflow\EventSubscriber\WorkflowTransitionSubscriber``` use Symfony workflow events to execute current transition, store result in the database and apply the next one.
 
-```App\Service\Workflow\Exception\StopWorkflowException``` - finally stops the workflow is some permanent error occurred
 
-```App\Service\Workflow\Exception\WorkflowInternalErrorException``` - temporary stops the workflow to retry it later, for example, if 3rd party service is temporarily unavailable
+There are exceptions that allows to control the workflow:
 
-```App\Service\Workflow\Exception\ProceedWorkflowInQueueException``` - temporary stops the workflow and send the retry process to a queue
+- ```App\Service\Workflow\Exception\StopWorkflowException``` - finally stops the workflow is some permanent error occurred
+
+- ```App\Service\Workflow\Exception\WorkflowInternalErrorException``` - temporary stops the workflow to retry it later, for example, if 3rd party service is temporarily unavailable
+
+- ```App\Service\Workflow\Exception\ProceedWorkflowInQueueException``` - temporary stops the workflow and send the retry process to a queue
 
 
 ## Transitions
@@ -104,7 +115,7 @@ class VerifyOrder implements WorkflowTransitionInterface
 
     public function getNextTransition(): ?string
     {
-        return Transition::SendOrder->value;
+        return Transition::ApproveOrder->value;
     }
 
     public function getState(): ?string
@@ -114,10 +125,33 @@ class VerifyOrder implements WorkflowTransitionInterface
 }
 ```
 
-**SendOrder**
+**ApproveOrder**
 
 ```php
-class SendOrder implements WorkflowTransitionInterface
+class ApproveOrder implements WorkflowTransitionInterface
+{
+    public function handle(WorkflowEnvelope $envelope): WorkflowEnvelope
+    {
+        ....
+        return $envelope;
+    }
+
+    public function getNextTransition(): ?string
+    {
+        return Transition::SendOrderToEmail->value;
+    }
+
+    public function getState(): ?string
+    {
+        return State::Approved->value;
+    }
+}
+```
+
+**SendOrderToEmail**
+
+```php
+class SendOrderToEmail implements WorkflowTransitionInterface
 {
     public function handle(WorkflowEnvelope $envelope): WorkflowEnvelope
     {
@@ -132,7 +166,7 @@ class SendOrder implements WorkflowTransitionInterface
 
     public function getState(): ?string
     {
-        return State::Sent->value;
+        return State::SentToEmail->value;
     }
 }
 ```
@@ -160,7 +194,7 @@ class MarkOrderAsSent implements WorkflowTransitionInterface
 }
 ```
 
-After that transitions should be added to registry in the ```services.yaml```
+Because ```Symfony\Component\Workflow\Registry``` injection is deprecated it's convenient to group workflow transitions to the service locator:
 
 ```yaml
 app.transitions:
