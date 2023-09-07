@@ -25,11 +25,18 @@ class WorkflowEnvelope
         $this->stamps[$stamp::class][] = $stamp;
     }
 
+    /**
+     * @return WorkflowStampInterface[]
+     */
     public function getStamps(): array
     {
         return $this->stamps;
     }
 
+    /**
+     * @param class-string<WorkflowStampInterface> $stampFqcn
+     * @return WorkflowStampInterface
+     */
     public function getStamp(string $stampFqcn): WorkflowStampInterface
     {
         $stamps = $this->stamps[$stampFqcn] ?? [];
@@ -41,6 +48,10 @@ class WorkflowEnvelope
         return reset($stamps);
     }
 
+    /**
+     * @param class-string<WorkflowStampInterface> $stampFqcn
+     * @return bool
+     */
     public function hasStamp(string $stampFqcn): bool
     {
         return isset($this->stamps[$stampFqcn]);
