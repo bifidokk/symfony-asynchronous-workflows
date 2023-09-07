@@ -76,6 +76,9 @@ There are exceptions that allows to control the workflow:
 
 - ```App\Service\Workflow\Exception\ProceedWorkflowInQueueException``` - temporary stops the workflow and send the retry process to a queue
 
+If an exception is thrown then the workflow is marked as failed and make a retry later using a cron command or send workflow execution to a queue.
+Also, if the error is permanent then the workflow is marked as stopped because it doesn't make sense to retry it.
+
 
 ## Transitions
 
